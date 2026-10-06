@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌍 G-Cards Civilizations</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ======================= JOIN SCREEN ======================= -->
+  <section id="screen-join" class="screen hidden">
+    <h1>🌍 G-Cards <span>Civilizations</span></h1>
+    <p class="tagline">Build a civilization. Survive 5 centuries. Take the most cities!</p>
+
+    <label class="field">
+      Your name
+      <input id="name-input" maxlength="20" placeholder="e.g. Alex" />
+    </label>
+
+    <h2>Pick your country (small ones only)</h2>
+    <div id="country-list" class="country-list"></div>
+    <p id="join-error" class="error"></p>
+  </section>
+
+  <!-- ======================= VOTING SCREEN ===================== -->
+  <section id="screen-voting" class="screen hidden">
+    <h1>🗳️ Vote for the starting century</h1>
+    <p class="tagline">Everyone votes. The most-voted century wins. Time left: <b id="vote-timer">-</b></p>
+    <div id="vote-grid" class="vote-grid"></div>
+    <p style="color:var(--muted)">The game starts when everyone has voted (or when the timer runs out). Bots vote fast!</p>
+  </section>
+
+  <!-- ======================= GAME SCREEN ======================= -->
+  <section id="screen-game" class="screen hidden">
+
+    <header class="topbar">
+      <div class="phase-box">
+        <div id="phase-title" class="phase-title">-</div>
+        <div class="timer"><span id="timer">-</span></div>
+        <div id="century-label" class="century">-</div>
+      </div>
+      <div id="resources" class="resources"></div>
+    </header>
+
+    <main class="grid">
+
+      <div class="panel cities-panel">
+        <h3>🏙️ My cities <small>(click to build)</small></h3>
+        <div id="my-cities" class="panel-scroll"></div>
+        <div id="war-panel" class="war-note"></div>
+      </div>
+
+      <div class="panel map-panel">
+        <h3>🗺️ The world map</h3>
+        <div id="map" class="map"></div>
+      </div>
+
+      <div class="panel players-panel">
+        <h3>👥 Players</h3>
+        <div id="players" class="panel-scroll players-half"></div>
+        <h3>📜 News</h3>
+        <div id="events" class="events panel-scroll news-half"></div>
+      </div>
+
+      <div class="panel merged-panel">
+        <div class="merged-scroll">
+          <section class="merged-section">
+            <h3>🔬 Knowledge <small>(unlock new things)</small></h3>
+            <div id="techs" class="merged-items"></div>
+          </section>
+          <section class="merged-section">
+            <h3>⚔️ Train troops</h3>
+            <div id="troops" class="merged-items"></div>
+          </section>
+          <section class="merged-section">
+            <h3>⛏️ Buy raw materials</h3>
+            <div id="materials" class="merged-items"></div>
+          </section>
+        </div>
+      </div>
+
+      <div class="chat-box">
+        <div id="chat-log" class="chat-log"></div>
+        <div class="chat-input">
+          <input id="chat-text" maxlength="200" placeholder="Say something to the other players..." />
+          <button id="chat-send">Send</button>
+        </div>
+      </div>
+
+    </main>
+  </section>
+
+  <!-- ======================= FINISHED SCREEN =================== -->
+  <section id="screen-finished" class="screen hidden">
+    <h1>🏆 The game is over!</h1>
+    <div id="final-scores"></div>
+    <button id="play-again" class="big-btn">Play again</button>
+  </section>
+
+  <script src="/app.js"></script>
+</body>
+</html>
