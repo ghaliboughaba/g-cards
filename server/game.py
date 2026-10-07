@@ -119,8 +119,11 @@ class GameWorld:
         """A human takes over a country (replacing its bot)."""
         if self.phase != "voting":
             return None, "The game has already started. Ask to watch instead!"
-        if not any(c["id"] == country_id for c in config.COUNTRIES):
+        country = next((c for c in config.COUNTRIES if c["id"] == country_id), None)
+        if country is None:
             return None, "Unknown country."
+        if country.get("bot_only"):
+            return None, f"{country['name']} is always controlled by a computer."
 
         # is that country already taken by a human?
         for p in self.players.values():

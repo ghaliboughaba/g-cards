@@ -99,11 +99,12 @@ function renderJoin() {
   box.innerHTML = "";
   world.countries.forEach((c) => {
     const owner = Object.values(world.players).find((p) => p.country === c.id);
-    const taken = owner && !owner.is_bot;
+    const botOnly = !!c.bot_only;
+    const taken = botOnly || (owner && !owner.is_bot);
     const el = document.createElement("div");
     el.className = "country-card" + (taken ? " taken" : "");
     el.innerHTML = `<div class="flag">${c.flag}</div><div class="cname">${c.name}</div>
-      <div style="color:var(--muted);font-size:12px">${c.capital}</div>`;
+      <div style="color:var(--muted);font-size:12px">${botOnly ? "🤖 computer" : c.capital}</div>`;
     if (!taken) {
       el.onclick = () => {
         const name = $("name-input").value.trim();
