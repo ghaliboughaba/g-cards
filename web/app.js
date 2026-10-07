@@ -497,10 +497,21 @@ function renderFinished() {
    BUTTONS
    ============================================================ */
 async function newGame() {
-  if (!confirm("Start a brand new game? The current game will be erased.")) return;
-  await fetch("/api/reset", { method: "POST" });
+  const password = prompt("Password to start a new game:");
+  if (password === null) return; // cancelled
+  const r = await fetch("/api/reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || data.error) {
+    toast(data.error || "Could not start a new game.");
+    return;
+  }
   localStorage.removeItem("gcards_player");
   myId = null;
+  toast("New game started!", true);
   getState();
 }
 

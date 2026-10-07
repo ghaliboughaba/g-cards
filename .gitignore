@@ -15,5 +15,8 @@ data/
 .DS_Store
 Thumbs.db
 
+# ---- Secrets (.env holds the reset password) ----
+.env
+
 # ---- Logs / test artifacts ----
 *.log

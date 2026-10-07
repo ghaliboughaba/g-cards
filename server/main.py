@@ -82,6 +82,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="G-Cards Civilizations", lifespan=lifespan)
 
 
+@app.middleware("http")
+async def no_cache_static(request: Request, call_next):
+    """Always give the browser fresh HTML/CSS/JS (avoids old cached files)."""
+    response = await call_next(request)
+    path = request.url.path
+    if path == "/" or path.endswith((".js", ".css", ".html")):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
+
 # ---------------------------------------------------------------
 #  API
 # ---------------------------------------------------------------
@@ -144,8 +154,20 @@ async def api_action(request: Request):
 
 
 @app.post("/api/reset")
-async def api_reset():
-    """Start a brand new game (erases the current one)."""
+async def api_reset(request: Request):
+    """Start a brand new game. Needs the password from the .env file."""
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    given = (body or {}).get("password", "")
+    if not config.RESET_PASSWORD:
+        return JSONResponse(
+            {"error": "No reset password is set. Add GCARDS_RESET_PASSWORD to the .env file."},
+            status_code=403,
+        )
+    if given != config.RESET_PASSWORD:
+        return JSONResponse({"error": "Wrong password."}, status_code=403)
     world.reset()
     storage.save(world)
     await broadcast()

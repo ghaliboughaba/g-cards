@@ -78,6 +78,7 @@ and tick **Private** and **Public** (this needs an administrator account).
 |------|------------|
 | `run.py` | Starts everything. |
 | `run_all.py` | Starts 5 separate versions at once (finds free ports). |
+| `.env` | Your private settings — the "Start a new game" password. **Not pushed to GitHub.** |
 | `start_5_games.bat` | Double-click this to start the 5 versions. |
 | `start_network_games.bat` | Start the 5 versions on your Wi‑Fi network. |
 | `start_network_game.bat` | Start one game on your Wi‑Fi network (port 8000). |

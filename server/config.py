@@ -6,12 +6,34 @@ Want the game to be faster, cheaper, or stronger? Just change a number
 below and restart the server. Nothing else needs to change.
 """
 
+import os
+
+
+def _load_dotenv():
+    """Read KEY=VALUE lines from the .env file in the project folder."""
+    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+    if not os.path.exists(path):
+        return
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
+# Password needed to click "Start a new game" (set in the .env file).
+RESET_PASSWORD = os.environ.get("GCARDS_RESET_PASSWORD", "")
+
 # ---------------------------------------------------------------
 #  TIME
 # ---------------------------------------------------------------
 SECONDS_PER_CENTURY = 300      # one century = 5 minutes (300 seconds)
-BUILD_SECONDS = int(__import__("os").environ.get("GCARDS_BUILD_SECONDS", "240"))  # 4 minutes of building
-WAR_SECONDS = int(__import__("os").environ.get("GCARDS_WAR_SECONDS", "60"))      # 1 minute of war
+BUILD_SECONDS = int(os.environ.get("GCARDS_BUILD_SECONDS", "240"))  # 4 minutes of building
+WAR_SECONDS = int(os.environ.get("GCARDS_WAR_SECONDS", "60"))       # 1 minute of war
 RESULT_SECONDS = 6             # a short pause to show the battle results
 TOTAL_CENTURIES = 5            # a whole game lasts 5 centuries
 TICK = 1.0                     # the game thinks once per second
