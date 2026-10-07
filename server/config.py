@@ -30,7 +30,7 @@ CITY_BASE_DEFENSE = 10         # a city defends itself a little
 #  VOTING
 # ---------------------------------------------------------------
 MAX_PLAYERS = 8                # one seat per country (see COUNTRIES below)
-VOTE_SECONDS = 90              # how long players may vote before it auto-starts
+VOTE_SECONDS = 180             # how long players may gather in the lobby (3 minutes)
 CENTURY_CHOICES = list(range(10, 16)) + list(range(20, 26))  # 10..15 and 20..25
 
 # ---------------------------------------------------------------

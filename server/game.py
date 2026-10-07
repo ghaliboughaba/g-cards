@@ -136,6 +136,8 @@ class GameWorld:
             if p.country == country_id and p.is_bot:
                 p.is_bot = False
                 p.name = name
+                # give friends more time to join after someone arrives
+                self.vote_time_left = config.VOTE_SECONDS
                 self.system(f"{name} joined as {country_id.title()}!")
                 return p, None
         return None, "That country is not available."
