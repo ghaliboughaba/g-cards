@@ -6,8 +6,9 @@ Each version is its OWN world with its OWN save file, on its OWN web link.
 How to use:
     python run_all.py          # or double-click start_5_games.bat
 
-It automatically picks 5 FREE ports (so it never clashes with a server you
-already have running), and prints the links.
+It automatically picks 5 FREE ports (normally 8001-8005, so it never
+clashes with a server you already have running), opens the first one in
+your browser, and prints all the links.
 
 Press Ctrl+C to stop all the games.
 
@@ -25,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 COUNT = int(os.environ.get("GCARDS_COUNT", "5"))
-BASE_PORT = int(os.environ.get("GCARDS_BASE_PORT", "8000"))
+BASE_PORT = int(os.environ.get("GCARDS_BASE_PORT", "8001"))
 
 
 def port_is_free(port: int) -> bool:
@@ -108,6 +109,13 @@ def main():
     else:
         print("(Only this computer can open the links. Set GCARDS_HOST=0.0.0.0 to share them.)")
     print()
+
+    # open the first game in your browser for you
+    try:
+        import webbrowser
+        webbrowser.open(f"http://127.0.0.1:{ports[0]}")
+    except Exception:
+        pass
 
     try:
         for proc in procs:

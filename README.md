@@ -42,11 +42,11 @@ It finds 5 **free** ports (it skips any port already in use) and opens five link
 
 | Version | Link |
 |---------|------|
-| Game 1 | http://127.0.0.1:8000 |
-| Game 2 | http://127.0.0.1:8001 |
-| Game 3 | http://127.0.0.1:8002 |
-| Game 4 | http://127.0.0.1:8003 |
-| Game 5 | http://127.0.0.1:8004 |
+| Game 1 | http://127.0.0.1:8001 |
+| Game 2 | http://127.0.0.1:8002 |
+| Game 3 | http://127.0.0.1:8003 |
+| Game 4 | http://127.0.0.1:8004 |
+| Game 5 | http://127.0.0.1:8005 |
 
 - Press **Ctrl+C** to stop all five.
 - To let friends on your Wi‑Fi join, first run `set GCARDS_HOST=0.0.0.0`
