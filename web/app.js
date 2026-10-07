@@ -130,6 +130,17 @@ function renderVoting() {
     b.onclick = () => action({ action: "vote", century: c });
     grid.appendChild(b);
   });
+
+  // difficulty picker
+  const dgrid = $("difficulty-grid");
+  dgrid.innerHTML = "";
+  Object.entries(world.difficulties).forEach(([key, d]) => {
+    const b = document.createElement("button");
+    b.className = "vote-btn" + (world.difficulty === key ? " chosen" : "");
+    b.innerHTML = `${d.emoji} ${d.name}<small>${d.info}</small>`;
+    b.onclick = () => action({ action: "difficulty", level: key });
+    dgrid.appendChild(b);
+  });
 }
 
 /* ---------- game screen ---------- */
@@ -157,13 +168,15 @@ function renderGame() {
   const mats = world.materials
     .map((m) => `<span class="chip">${matEmoji(m)} ${m} <b>${p.materials[m] || 0}</b></span>`)
     .join("");
+  const diff = world.difficulties[world.difficulty];
   $("resources").innerHTML =
     `<span class="chip">💰 money <b>${p.money}</b></span>
      <span class="chip">🏗️ building pts <b>${p.building_points}</b></span>
      <span class="chip">🔬 knowledge <b>${p.knowledge_points}</b></span>
      <span class="chip">⚔️ war pts <b>${p.war_points}</b></span>
      <span class="chip">🛡️ security <b>${p.security_points}</b></span>
-     ${mats}`;
+     ${mats}
+     <span class="chip">${diff.emoji} ${diff.name}</span>`;
 
   renderMyCities(p);
   renderMap(p);

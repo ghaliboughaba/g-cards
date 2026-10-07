@@ -39,6 +39,7 @@ class GameWorld:
         self.vote_time_left = config.VOTE_SECONDS
         self.result_century = None
         self.paused = False
+        self.difficulty = config.DEFAULT_DIFFICULTY
 
         self.players: dict[str, Player] = {}
         self.cities: dict[str, City] = {}
@@ -61,11 +62,14 @@ class GameWorld:
             "italy":   ["Rome", "Milan", "Naples"],
             "japan":   ["Tokyo", "Osaka", "Kyoto"],
             "denmark": ["Copenhagen", "Aarhus", "Odense"],
+            "usa":     ["Washington", "New York", "Los Angeles"],
+            "france":  ["Paris", "Lyon", "Marseille"],
+            "england": ["London", "Manchester", "Birmingham"],
         }
         for country in config.COUNTRIES:
             names = city_names[country["id"]]
             for i, name in enumerate(names):
-                cid = f"{country['id']}_{name.lower()}"
+                cid = f"{country['id']}_{name.lower().replace(' ', '_')}"
                 is_cap = (i == 0)
                 self.cities[cid] = City(
                     id=cid,
@@ -82,7 +86,7 @@ class GameWorld:
 
     # --- fill the 5 seats with computer players -----------------
     def _create_bots(self):
-        names = ["Ada", "Boris", "Cleo", "Dario", "Elena"]
+        names = ["Ada", "Boris", "Cleo", "Dario", "Elena", "Farid", "Gina", "Hugo"]
         for i, country in enumerate(config.COUNTRIES):
             pid = f"bot_{country['id']}"
             player = Player(
@@ -142,6 +146,19 @@ class GameWorld:
     def human_count(self) -> int:
         """How many real people are playing?"""
         return sum(1 for p in self.players.values() if not p.is_bot)
+
+    def difficulty_data(self) -> dict:
+        return config.DIFFICULTIES.get(self.difficulty, config.DIFFICULTIES["normal"])
+
+    def set_difficulty(self, player_id: str, level: str):
+        if self.phase != "voting":
+            return "You can only choose the difficulty before the game starts."
+        if level not in config.DIFFICULTIES:
+            return "Unknown difficulty."
+        self.difficulty = level
+        d = config.DIFFICULTIES[level]
+        self.system(f"{self.players[player_id].name} set difficulty to {d['name']} {d['emoji']}.")
+        return None
 
     def can_pause(self) -> bool:
         """A single player may pause the game (bots do not count)."""
@@ -343,8 +360,21 @@ class GameWorld:
         self.result_century = self.century
         self.phase = "playing"
         self.century_index = 0
+
+        # give the computer players their difficulty bonus
+        d = self.difficulty_data()
+        extra = d.get("bot_start_extra", 0)
+        if extra:
+            for p in self.players.values():
+                if p.is_bot:
+                    p.money += extra
+                    p.building_points += extra / 2
+                    for m in config.MATERIALS:
+                        p.materials[m] = p.materials.get(m, 0) + 5
+
         self._enter_build()
         self.system(f"The game begins in the year {self.century}00! Build your civilization. 🏛️")
+        self.system(f"Difficulty: {d['name']} {d['emoji']} — {d['info']}")
 
     def _enter_build(self):
         self.sub_phase = "build"
@@ -436,15 +466,17 @@ class GameWorld:
     #  ECONOMY  (money, points, materials, happiness)
     # ============================================================
     def _run_economy(self, dt: float):
+        bot_mult = self.difficulty_data()["bot_economy"]
         for p in self.players.values():
             if not p.alive:
                 continue
             cities = [self.cities[cid] for cid in p.cities]
             population = sum(c.population for c in cities)
             happiness = self._avg_satisfaction(cities) / 100.0
+            m = bot_mult if p.is_bot else 1.0
 
             tax_mult = 1.5 if p.has_tech("banking") else 1.0
-            p.money += population * config.TAX_PER_CITIZEN * happiness * tax_mult * dt
+            p.money += population * config.TAX_PER_CITIZEN * happiness * tax_mult * dt * m
 
             bp_bonus = 0.0
             money_bonus = 0.0
@@ -452,9 +484,9 @@ class GameWorld:
                 for bid, count in c.buildings.items():
                     bp_bonus += config.BUILDINGS[bid].get("building_bonus", 0) * count
                     money_bonus += config.BUILDINGS[bid].get("money_bonus", 0) * count
-            p.building_points += (config.BP_PER_SECOND + bp_bonus) * dt
-            p.money += money_bonus * happiness * dt
-            p.knowledge_points += config.KP_PER_SECOND * dt
+            p.building_points += (config.BP_PER_SECOND + bp_bonus) * dt * m
+            p.money += money_bonus * happiness * dt * m
+            p.knowledge_points += config.KP_PER_SECOND * dt * m
 
             # people grow when they are happy and there is room
             for c in cities:
@@ -543,6 +575,7 @@ class GameWorld:
             "vote_time_left": self.vote_time_left,
             "result_century": self.result_century,
             "paused": self.paused,
+            "difficulty": self.difficulty,
             "players": {pid: p.__dict__ for pid, p in self.players.items()},
             "cities": {cid: c.__dict__ for cid, c in self.cities.items()},
             "votes": self.votes,
@@ -562,6 +595,7 @@ class GameWorld:
         self.vote_time_left = data["vote_time_left"]
         self.result_century = data.get("result_century")
         self.paused = data.get("paused", False)
+        self.difficulty = data.get("difficulty", config.DEFAULT_DIFFICULTY)
         self.players = {}
         for pid, raw in data["players"].items():
             p = Player(id=raw["id"], name=raw["name"], country=raw["country"])
@@ -594,6 +628,8 @@ class GameWorld:
             "paused": self.paused,
             "human_count": self.human_count(),
             "can_pause": self.can_pause(),
+            "difficulty": self.difficulty,
+            "difficulties": config.DIFFICULTIES,
             "century_choices": config.CENTURY_CHOICES,
             "players": {pid: p.to_dict() for pid, p in self.players.items()},
             "cities": {cid: c.to_dict() for cid, c in self.cities.items()},

@@ -23,8 +23,9 @@ def bot_vote(world, player):
 
 def bot_act(world, player, dt):
     """Called about once per second during the build phase."""
-    # only do something every few seconds
-    if random.random() > 0.5:
+    d = config.DIFFICULTIES.get(world.difficulty, config.DIFFICULTIES["normal"])
+    # how often a bot acts depends on the difficulty
+    if random.random() > d["bot_activity"]:
         return
 
     cities = [world.cities[cid] for cid in player.cities]
@@ -77,6 +78,9 @@ def _try_build(world, player, city, building_id) -> bool:
 
 def bot_choose_target(world, player):
     """Pick the easiest enemy city to attack."""
+    d = config.DIFFICULTIES.get(world.difficulty, config.DIFFICULTIES["normal"])
+    if random.random() > d["bot_attacks"]:
+        return
     best = None
     best_def = 99999
     for city in world.cities.values():

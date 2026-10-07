@@ -28,7 +28,7 @@ CITY_BASE_DEFENSE = 10         # a city defends itself a little
 # ---------------------------------------------------------------
 #  VOTING
 # ---------------------------------------------------------------
-MAX_PLAYERS = 5                # 5 countries, 5 seats
+MAX_PLAYERS = 8                # one seat per country (see COUNTRIES below)
 VOTE_SECONDS = 90              # how long players may vote before it auto-starts
 CENTURY_CHOICES = list(range(10, 16)) + list(range(20, 26))  # 10..15 and 20..25
 
@@ -41,6 +41,9 @@ COUNTRIES = [
     {"id": "italy",   "name": "Italy",   "flag": "🇮🇹", "capital": "Rome",       "color": "#457b9d"},
     {"id": "japan",   "name": "Japan",   "flag": "🇯🇵", "capital": "Tokyo",      "color": "#e76f51"},
     {"id": "denmark", "name": "Denmark", "flag": "🇩🇰", "capital": "Copenhagen", "color": "#8e7dbe"},
+    {"id": "usa",     "name": "USA",     "flag": "🇺🇸", "capital": "Washington", "color": "#2563eb"},
+    {"id": "france",  "name": "France",  "flag": "🇫🇷", "capital": "Paris",      "color": "#7c3aed"},
+    {"id": "england", "name": "England", "flag": "🇬🇧", "capital": "London",     "color": "#b91c1c"},
 ]
 
 # ---------------------------------------------------------------
@@ -174,3 +177,39 @@ BP_PER_SECOND = 0.5            # building points every second
 KP_PER_SECOND = 0.15           # knowledge points every second
 POP_GROWTH = 0.12              # new citizens per second (when happy + room)
 WAR_DEFENDER_BONUS = 1.15      # defenders are a little stronger (small advantage)
+
+# ---------------------------------------------------------------
+#  DIFFICULTY  (how strong the computer players are)
+#    bot_activity    = how often a bot does something (0..1)
+#    bot_economy     = multiplier on bot money / building points / knowledge
+#    bot_start_extra = extra money bots get when the game begins
+#    bot_attacks     = chance a bot attacks in a war (0..1)
+# ---------------------------------------------------------------
+DEFAULT_DIFFICULTY = "normal"
+
+DIFFICULTIES = {
+    "easy": {
+        "name": "Easy", "emoji": "🙂",
+        "info": "Computer players are slow and friendly.",
+        "bot_activity": 0.30,
+        "bot_economy": 0.8,
+        "bot_start_extra": 0,
+        "bot_attacks": 0.5,
+    },
+    "normal": {
+        "name": "Normal", "emoji": "😐",
+        "info": "A fair fight.",
+        "bot_activity": 0.50,
+        "bot_economy": 1.0,
+        "bot_start_extra": 0,
+        "bot_attacks": 0.85,
+    },
+    "hard": {
+        "name": "Hard", "emoji": "😈",
+        "info": "Computer players are rich, quick and ruthless.",
+        "bot_activity": 0.85,
+        "bot_economy": 1.5,
+        "bot_start_extra": 250,
+        "bot_attacks": 1.0,
+    },
+}
