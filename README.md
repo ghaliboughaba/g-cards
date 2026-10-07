@@ -49,8 +49,26 @@ It finds 5 **free** ports (it skips any port already in use) and opens five link
 | Game 5 | http://127.0.0.1:8005 |
 
 - Press **Ctrl+C** to stop all five.
-- To let friends on your Wi‑Fi join, first run `set GCARDS_HOST=0.0.0.0`
-  (Windows) and then `python run_all.py` — the script prints the addresses to share.
+
+---
+
+## 🌐 Play with friends on your network (Wi‑Fi)
+
+By default the games only work on **your own computer** (`127.0.0.1`).
+To let other devices join, the server must listen on the **network address**
+(`0.0.0.0`):
+
+**Easiest way:** double-click **`start_network_games.bat`**.
+It prints an address like `http://192.168.1.61:8001` — send that to your friends
+on the same Wi‑Fi.
+
+**Firewall:** the first time, Windows may ask to allow Python — click **Allow**.
+If you accidentally click Cancel/Block, other devices can't connect. To fix it,
+open *Windows Defender Firewall → Allow an app through firewall*, find **Python**,
+and tick **Private** and **Public** (this needs an administrator account).
+
+> ℹ️ To play *one shared game* with friends, everyone uses the **same** link.
+> The 5 versions are 5 **separate** games.
 
 ---
 
@@ -61,6 +79,8 @@ It finds 5 **free** ports (it skips any port already in use) and opens five link
 | `run.py` | Starts everything. |
 | `run_all.py` | Starts 5 separate versions at once (finds free ports). |
 | `start_5_games.bat` | Double-click this to start the 5 versions. |
+| `start_network_games.bat` | Start the 5 versions on your Wi‑Fi network. |
+| `start_network_game.bat` | Start one game on your Wi‑Fi network (port 8000). |
 | `server/config.py` | All the game numbers (costs, times, countries…). Change numbers here! |
 | `server/models.py` | The shapes of a Player and a City. |
 | `server/game.py` | The brain: the clock, the economy, and the wars. |
