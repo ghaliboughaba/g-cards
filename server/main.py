@@ -143,6 +143,15 @@ async def api_action(request: Request):
     return {"ok": True, "state": world.public_state(pid)}
 
 
+@app.post("/api/reset")
+async def api_reset():
+    """Start a brand new game (erases the current one)."""
+    world.reset()
+    storage.save(world)
+    await broadcast()
+    return {"ok": True, "state": world.public_state()}
+
+
 # ---------------------------------------------------------------
 #  LIVE UPDATES (websocket)
 # ---------------------------------------------------------------

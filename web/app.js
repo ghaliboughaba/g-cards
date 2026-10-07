@@ -97,6 +97,9 @@ function render() {
 function renderJoin() {
   const box = $("country-list");
   box.innerHTML = "";
+  $("join-status").textContent = world.phase === "voting"
+    ? ""
+    : "⚠️ A game is already in progress. Click “Start a new game” below to play.";
   world.countries.forEach((c) => {
     const owner = Object.values(world.players).find((p) => p.country === c.id);
     const botOnly = !!c.bot_only;
@@ -167,6 +170,8 @@ function renderGame() {
   } else {
     pauseBtn.classList.add("hidden");
   }
+  // new game button: shown when you are alone, so you can always start over
+  $("new-game-btn").classList.toggle("hidden", !world.can_reset);
 
   const mats = world.materials
     .map((m) => `<span class="chip">${matEmoji(m)} ${m} <b>${p.materials[m] || 0}</b></span>`)
@@ -491,7 +496,17 @@ function renderFinished() {
 /* ============================================================
    BUTTONS
    ============================================================ */
+async function newGame() {
+  if (!confirm("Start a brand new game? The current game will be erased.")) return;
+  await fetch("/api/reset", { method: "POST" });
+  localStorage.removeItem("gcards_player");
+  myId = null;
+  getState();
+}
+
 $("pause-btn").onclick = () => action({ action: "pause" });
+$("new-game-btn").onclick = newGame;
+$("new-game").onclick = newGame;
 $("chat-send").onclick = () => {
   const input = $("chat-text");
   if (input.value.trim()) { action({ action: "chat", text: input.value }); input.value = ""; }
@@ -499,12 +514,7 @@ $("chat-send").onclick = () => {
 $("chat-text").addEventListener("keydown", (e) => {
   if (e.key === "Enter") $("chat-send").click();
 });
-$("play-again").onclick = async () => {
-  await action({ action: "reset" });
-  localStorage.removeItem("gcards_player");
-  myId = null;
-  getState();
-};
+$("play-again").onclick = newGame;
 
 /* ---------- start ---------- */
 getState();

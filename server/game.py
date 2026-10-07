@@ -681,6 +681,7 @@ class GameWorld:
             "paused": self.paused,
             "human_count": self.human_count(),
             "can_pause": self.can_pause(),
+            "can_reset": self.human_count() <= 1,
             "difficulty": self.difficulty,
             "difficulties": config.DIFFICULTIES,
             "war_preview": self.war_preview(),

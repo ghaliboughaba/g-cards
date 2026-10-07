@@ -22,7 +22,9 @@
     <h2>Pick your country</h2>
     <div id="country-list" class="country-list"></div>
     <p id="join-error" class="error"></p>
+    <p id="join-status" style="color:var(--gold)"></p>
     <p style="color:var(--muted)">👥 Friends can play too: send them this same link. Each person opens it in their <b>own browser</b> and picks a different country.</p>
+    <button id="new-game" class="big-btn secondary">🔄 Start a new game</button>
   </section>
 
   <!-- ======================= VOTING SCREEN ===================== -->
@@ -44,6 +46,7 @@
         <div class="timer"><span id="timer">-</span></div>
         <div id="century-label" class="century">-</div>
         <button id="pause-btn" class="pause-btn hidden">⏸️ Pause</button>
+        <button id="new-game-btn" class="pause-btn hidden">🔄 New game</button>
       </div>
       <div id="resources" class="resources"></div>
     </header>
