@@ -41,9 +41,9 @@ COUNTRIES = [
     {"id": "italy",   "name": "Italy",   "flag": "🇮🇹", "capital": "Rome",       "color": "#457b9d"},
     {"id": "japan",   "name": "Japan",   "flag": "🇯🇵", "capital": "Tokyo",      "color": "#e76f51"},
     {"id": "denmark", "name": "Denmark", "flag": "🇩🇰", "capital": "Copenhagen", "color": "#8e7dbe"},
-    {"id": "usa",     "name": "USA",     "flag": "🇺🇸", "capital": "Washington", "color": "#2563eb", "bot_only": True},
-    {"id": "france",  "name": "France",  "flag": "🇫🇷", "capital": "Paris",      "color": "#7c3aed", "bot_only": True},
-    {"id": "england", "name": "England", "flag": "🇬🇧", "capital": "London",     "color": "#b91c1c", "bot_only": True},
+    {"id": "usa",     "name": "USA",     "flag": "🇺🇸", "capital": "Washington", "color": "#2563eb"},
+    {"id": "france",  "name": "France",  "flag": "🇫🇷", "capital": "Paris",      "color": "#7c3aed"},
+    {"id": "england", "name": "England", "flag": "🇬🇧", "capital": "London",     "color": "#b91c1c"},
 ]
 
 # ---------------------------------------------------------------
