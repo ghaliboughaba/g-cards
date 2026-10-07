@@ -97,6 +97,11 @@ input {
 .phase-title { font-size: 17px; font-weight: bold; color: var(--gold); }
 .timer { font-size: 22px; font-weight: bold; font-variant-numeric: tabular-nums; line-height: 1; }
 .century { color: var(--muted); font-size: 12px; }
+.pause-btn {
+  margin-top: 5px; padding: 4px 14px; font-size: 13px; font-weight: bold;
+  cursor: pointer; border: none; border-radius: 8px;
+  background: var(--gold); color: #04121c;
+}
 .resources { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px;

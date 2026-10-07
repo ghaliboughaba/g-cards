@@ -124,6 +124,8 @@ async def api_action(request: Request):
         error = world.research(pid, body.get("tech"))
     elif action == "target":
         error = world.set_target(pid, body.get("city"))
+    elif action == "pause":
+        error = world.toggle_pause(pid)
     elif action == "chat":
         world.say(pid, body.get("text", ""))
     elif action == "ally":

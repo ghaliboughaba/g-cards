@@ -38,6 +38,7 @@ class GameWorld:
         self.time_left = config.BUILD_SECONDS
         self.vote_time_left = config.VOTE_SECONDS
         self.result_century = None
+        self.paused = False
 
         self.players: dict[str, Player] = {}
         self.cities: dict[str, City] = {}
@@ -137,6 +138,21 @@ class GameWorld:
     def has_human(self) -> bool:
         """Is there at least one real person playing?"""
         return any(not p.is_bot for p in self.players.values())
+
+    def human_count(self) -> int:
+        """How many real people are playing?"""
+        return sum(1 for p in self.players.values() if not p.is_bot)
+
+    def can_pause(self) -> bool:
+        """A single player may pause the game (bots do not count)."""
+        return self.phase == "playing" and self.human_count() == 1
+
+    def toggle_pause(self, player_id: str):
+        if not self.can_pause():
+            return "You can only pause when you are the only player."
+        self.paused = not self.paused
+        self.system("⏸️ The game is paused." if self.paused else "▶️ The game is running again.")
+        return None
 
     # ============================================================
     #  PLAYER ACTIONS
@@ -282,6 +298,9 @@ class GameWorld:
         # so bots never play alone forever.
         if self.phase != "voting" and not self.has_human():
             self.reset()
+            return
+
+        if self.paused:
             return
 
         if self.phase == "voting":
@@ -523,6 +542,7 @@ class GameWorld:
             "time_left": self.time_left,
             "vote_time_left": self.vote_time_left,
             "result_century": self.result_century,
+            "paused": self.paused,
             "players": {pid: p.__dict__ for pid, p in self.players.items()},
             "cities": {cid: c.__dict__ for cid, c in self.cities.items()},
             "votes": self.votes,
@@ -541,6 +561,7 @@ class GameWorld:
         self.time_left = data["time_left"]
         self.vote_time_left = data["vote_time_left"]
         self.result_century = data.get("result_century")
+        self.paused = data.get("paused", False)
         self.players = {}
         for pid, raw in data["players"].items():
             p = Player(id=raw["id"], name=raw["name"], country=raw["country"])
@@ -570,6 +591,9 @@ class GameWorld:
             "sub_phase": self.sub_phase,
             "time_left": round(self.time_left, 1),
             "vote_time_left": round(self.vote_time_left, 1),
+            "paused": self.paused,
+            "human_count": self.human_count(),
+            "can_pause": self.can_pause(),
             "century_choices": config.CENTURY_CHOICES,
             "players": {pid: p.to_dict() for pid, p in self.players.items()},
             "cities": {cid: c.to_dict() for cid, c in self.cities.items()},

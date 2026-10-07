@@ -137,10 +137,22 @@ function renderGame() {
   const p = me();
 
   // top bar
-  $("phase-title").textContent = world.sub_phase === "war" ? "⚔️ WAR!" : "🔨 Build time";
+  const paused = world.paused;
+  $("phase-title").textContent = paused
+    ? "⏸️ PAUSED"
+    : (world.sub_phase === "war" ? "⚔️ WAR!" : "🔨 Build time");
   $("timer").textContent = fmtTime(world.time_left);
   $("century-label").textContent =
     `Century ${world.century}00 — ${world.century_index + 1} of ${world.total_centuries}`;
+
+  // pause button: only shown when you are the only human player
+  const pauseBtn = $("pause-btn");
+  if (world.can_pause) {
+    pauseBtn.classList.remove("hidden");
+    pauseBtn.textContent = paused ? "▶️ Resume" : "⏸️ Pause";
+  } else {
+    pauseBtn.classList.add("hidden");
+  }
 
   const mats = world.materials
     .map((m) => `<span class="chip">${matEmoji(m)} ${m} <b>${p.materials[m] || 0}</b></span>`)
@@ -309,9 +321,24 @@ function renderMaterials(p) {
     btn.className = "mini";
     btn.style.margin = "3px";
     btn.innerHTML = `${matEmoji(m)} buy ${m} <small>💰${world.material_price[m]}</small>`;
-    btn.onclick = () => action({ action: "buy", material: m, amount: 1 });
+    btn.onclick = () => buyMaterial(m);
     box.appendChild(btn);
   });
+}
+
+function buyMaterial(material) {
+  const price = world.material_price[material];
+  const answer = prompt(
+    `How much ${material} do you want to buy?\n(1 ${material} = ${price} money)`,
+    "1"
+  );
+  if (answer === null) return; // cancelled
+  const amount = parseInt(answer, 10);
+  if (!Number.isFinite(amount) || amount < 1) {
+    toast("Please type a whole number of 1 or more.");
+    return;
+  }
+  action({ action: "buy", material, amount });
 }
 
 function renderChat() {
@@ -339,6 +366,7 @@ function renderFinished() {
 /* ============================================================
    BUTTONS
    ============================================================ */
+$("pause-btn").onclick = () => action({ action: "pause" });
 $("chat-send").onclick = () => {
   const input = $("chat-text");
   if (input.value.trim()) { action({ action: "chat", text: input.value }); input.value = ""; }
