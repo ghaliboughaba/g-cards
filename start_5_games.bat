@@ -1,6 +1,11 @@
 @echo off
 cd /d "%~dp0"
-echo Starting the game versions...
+REM Listen on the network too, so other devices can join.
+set GCARDS_HOST=0.0.0.0
+echo ============================================================
+echo   Starting the 5 games (reachable on your Wi-Fi network)
+echo   Friends open the address printed below.
+echo ============================================================
 echo.
 python run_all.py
 echo.
