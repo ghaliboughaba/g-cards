@@ -40,6 +40,7 @@ class GameWorld:
         self.result_century = None
         self.paused = False
         self.difficulty = config.DEFAULT_DIFFICULTY
+        self.war_results = []
 
         self.players: dict[str, Player] = {}
         self.cities: dict[str, City] = {}
@@ -339,13 +340,15 @@ class GameWorld:
             self.time_left -= dt
             self._run_economy(dt)
             for p in list(self.players.values()):
-                if p.is_bot and p.alive:
+                if p.is_bot and p.alive and self.sub_phase == "build":
                     bots.bot_act(self, p, dt)
 
             if self.sub_phase == "build" and self.time_left <= 0:
                 self._start_war()
             elif self.sub_phase == "war" and self.time_left <= 0:
                 self._resolve_wars()
+                self._enter_result()
+            elif self.sub_phase == "result" and self.time_left <= 0:
                 self._next_century()
 
     # --- voting is done, begin the game -------------------------
@@ -389,31 +392,74 @@ class GameWorld:
     def _start_war(self):
         self.sub_phase = "war"
         self.time_left = config.WAR_SECONDS
+        self.war_results = []
         self.system(f"⚔️ WAR! Century {self.century} is ending. Choose a city to attack!")
         for p in list(self.players.values()):
             if p.is_bot and p.alive:
                 bots.bot_choose_target(self, p)
 
+    # --- war is over; show the results for a few seconds --------
+    def _enter_result(self):
+        self.sub_phase = "result"
+        self.time_left = config.RESULT_SECONDS
+
+    # --- the attack/defense power of a battle -------------------
+    def _battle_powers(self, p, city):
+        attacker = 10 + p.war_points + self._army_attack(p)
+        defender = city.defense
+        if city.owner:
+            d = self.players[city.owner]
+            defender += d.security_points + self._army_defense(d) * config.WAR_DEFENDER_BONUS
+        return attacker, defender
+
+    def war_preview(self):
+        """The battles people have chosen, with attack/defense power."""
+        rows = []
+        if self.sub_phase != "war":
+            return rows
+        for p in self.players.values():
+            if not p.alive or not p.target:
+                continue
+            city = self.cities.get(p.target)
+            if not city or city.owner == p.id:
+                continue
+            attack, defense = self._battle_powers(p, city)
+            defender = city.owner
+            rows.append({
+                "attacker": p.id, "attacker_name": p.name, "attacker_color": p.color,
+                "city": city.id, "city_name": city.name,
+                "defender": defender,
+                "defender_name": self.players[defender].name if defender else "Neutral",
+                "attack": round(attack), "defense": round(defense),
+            })
+        return rows
+
     # --- fight every battle -------------------------------------
     def _resolve_wars(self):
+        self.war_results = []
         for p in list(self.players.values()):
             if not p.alive or not p.target:
                 continue
             city = self.cities.get(p.target)
             if not city or city.owner == p.id:
                 continue
-            attacker = 10 + p.war_points + self._army_attack(p)
-            defender = city.defense
-            if city.owner:
-                d = self.players[city.owner]
-                defender += d.security_points + self._army_defense(d) * config.WAR_DEFENDER_BONUS
-            attacker *= random.uniform(0.85, 1.15)
-            defender *= random.uniform(0.85, 1.15)
+            defender_id = city.owner
+            attack, defense = self._battle_powers(p, city)
+            captured = attack * random.uniform(0.85, 1.15) > defense * random.uniform(0.85, 1.15)
 
-            if attacker > defender:
+            if captured:
                 self._capture(p, city)
             else:
                 self.system(f"{p.name} attacked {city.name} but was pushed back. 🛡️")
+
+            self.war_results.append({
+                "attacker": p.id, "attacker_name": p.name, "attacker_color": p.color,
+                "city": city.id, "city_name": city.name,
+                "defender": defender_id,
+                "defender_name": self.players[defender_id].name if defender_id else "Neutral",
+                "attack": round(attack), "defense": round(defense),
+                "captured": captured,
+            })
         # clear targets for next time
         for p in self.players.values():
             p.target = None
@@ -579,6 +625,7 @@ class GameWorld:
             "result_century": self.result_century,
             "paused": self.paused,
             "difficulty": self.difficulty,
+            "war_results": self.war_results,
             "players": {pid: p.__dict__ for pid, p in self.players.items()},
             "cities": {cid: c.__dict__ for cid, c in self.cities.items()},
             "votes": self.votes,
@@ -599,6 +646,7 @@ class GameWorld:
         self.result_century = data.get("result_century")
         self.paused = data.get("paused", False)
         self.difficulty = data.get("difficulty", config.DEFAULT_DIFFICULTY)
+        self.war_results = data.get("war_results", [])
         self.players = {}
         for pid, raw in data["players"].items():
             p = Player(id=raw["id"], name=raw["name"], country=raw["country"])
@@ -633,6 +681,8 @@ class GameWorld:
             "can_pause": self.can_pause(),
             "difficulty": self.difficulty,
             "difficulties": config.DIFFICULTIES,
+            "war_preview": self.war_preview(),
+            "war_results": self.war_results,
             "century_choices": config.CENTURY_CHOICES,
             "players": {pid: p.to_dict() for pid, p in self.players.items()},
             "cities": {cid: c.to_dict() for cid, c in self.cities.items()},

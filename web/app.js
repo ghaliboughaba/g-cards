@@ -152,7 +152,9 @@ function renderGame() {
   const paused = world.paused;
   $("phase-title").textContent = paused
     ? "⏸️ PAUSED"
-    : (world.sub_phase === "war" ? "⚔️ WAR!" : "🔨 Build time");
+    : world.sub_phase === "war" ? "⚔️ WAR!"
+    : world.sub_phase === "result" ? "💥 Results"
+    : "🔨 Build time";
   $("timer").textContent = fmtTime(world.time_left);
   $("century-label").textContent =
     `Century ${world.century}00 — ${world.century_index + 1} of ${world.total_centuries}`;
@@ -188,6 +190,80 @@ function renderGame() {
   renderTroops(p);
   renderMaterials(p);
   renderChat();
+  renderWarOverlay(p);
+}
+
+/* ---------- the war screen ---------- */
+function renderWarOverlay(p) {
+  const ov = $("war-overlay");
+  const active = world.sub_phase === "war" || world.sub_phase === "result";
+  ov.classList.toggle("hidden", !active);
+  if (!active) return;
+
+  $("war-century").textContent = world.century;
+  $("war-timer").textContent = fmtTime(world.time_left);
+
+  if (world.sub_phase === "war") {
+    $("war-subtitle").textContent = p.alive
+      ? "Pick a city to attack — the battle happens automatically when the timer ends!"
+      : "You were defeated. Watch the battles!";
+    renderWarTargets(p);
+    renderBattles(world.war_preview, false);
+  } else {
+    $("war-subtitle").textContent = "💥 The battles are over!";
+    $("war-targets").innerHTML = "<p class='muted'>Look at the results on the right ➡️</p>";
+    renderBattles(world.war_results, true);
+  }
+}
+
+function renderWarTargets(p) {
+  const box = $("war-targets");
+  box.innerHTML = "";
+  if (!p.alive) { box.innerHTML = "<p class='muted'>You are out of the game.</p>"; return; }
+  const enemies = Object.values(world.cities).filter((c) => c.owner !== myId);
+  enemies.sort((a, b) => a.defense - b.defense);
+  enemies.forEach((c) => {
+    const owner = c.owner ? world.players[c.owner] : null;
+    const color = owner ? owner.color : "#5a6a86";
+    const b = document.createElement("button");
+    b.className = "war-target" + (p.target === c.id ? " chosen" : "");
+    b.style.borderColor = color;
+    b.innerHTML = `<span class="wt-name"><span class="dot" style="background:${color}"></span>${c.name}</span>
+      <small>${owner ? owner.flag + " " + owner.name : "Neutral"} · 🛡️${c.defense} · 👥${c.population}</small>`;
+    b.onclick = () => action({ action: "target", city: c.id });
+    box.appendChild(b);
+  });
+}
+
+function renderBattles(rows, showResult) {
+  const box = $("war-battles");
+  box.innerHTML = "";
+  if (!rows || !rows.length) {
+    box.innerHTML = "<p class='muted'>No battles chosen yet. Pick a target! 🎯</p>";
+    return;
+  }
+  const maxPow = Math.max(1, ...rows.map((r) => Math.max(r.attack, r.defense)));
+  rows.forEach((r) => {
+    const mine = r.attacker === myId;
+    const captured = showResult && r.captured;
+    const card = document.createElement("div");
+    card.className = "battle-card" + (mine ? " mine" : "") + (captured ? " captured" : "");
+    const aPct = Math.max(4, Math.round((r.attack / maxPow) * 100));
+    const dPct = Math.max(4, Math.round((r.defense / maxPow) * 100));
+    let outcome = "";
+    if (showResult) {
+      outcome = r.captured
+        ? `<div class="battle-result win">🔥 ${r.attacker_name} CAPTURED ${r.city_name}!</div>`
+        : `<div class="battle-result lose">🛡️ ${r.city_name} held! Attack repelled.</div>`;
+    }
+    card.innerHTML = `
+      <div class="battle-title">${r.attacker_name} <span class="arrow">➜</span> ${r.city_name}
+        <small>vs ${r.defender_name}</small></div>
+      <div class="bar-row"><span>⚔️ ${r.attack}</span><div class="bar"><i class="atk" style="width:${aPct}%"></i></div></div>
+      <div class="bar-row"><span>🛡️ ${r.defense}</span><div class="bar"><i class="def" style="width:${dPct}%"></i></div></div>
+      ${outcome}`;
+    box.appendChild(card);
+  });
 }
 
 function matEmoji(m) {
@@ -224,40 +300,75 @@ function renderMyCities(p) {
   });
 }
 
-function ownerColor(city) {
-  if (!city.owner) return "#5a6a86";
-  const o = world.players[city.owner];
-  return o ? o.color : "#5a6a86";
-}
+// real positions of each country on the Earth map (percentages of the map image).
+// x/y = where the country is, lx/ly = where its label is placed (fanned out).
+const COUNTRY_MAP = {
+  croatia: { x: 52.1, y: 32.5, lx: 61,   ly: 31 },
+  morocco: { x: 45.0, y: 41.0, lx: 41,   ly: 48 },
+  italy:   { x: 51.2, y: 33.6, lx: 58,   ly: 42 },
+  japan:   { x: 85.9, y: 32.1, lx: 85.9, ly: 39 },
+  denmark: { x: 50.1, y: 25.4, lx: 53,   ly: 15 },
+  usa:     { x: 21.7, y: 33.6, lx: 21.7, ly: 41 },
+  france:  { x: 48.2, y: 31.1, lx: 36,   ly: 27 },
+  england: { x: 47.1, y: 26.7, lx: 35,   ly: 18 },
+};
 
 function renderMap(p) {
   const map = $("map");
   map.innerHTML = "";
-  world.countries.forEach((c) => {
-    const cities = Object.values(world.cities).filter((ci) => ci.country === c.id);
-    const div = document.createElement("div");
-    div.className = "map-country";
-    div.style.borderColor = c.color;
-    div.innerHTML = `<div class="mc-title">${c.flag} ${c.name}</div>`;
-    cities.forEach((ci) => {
-      const token = document.createElement("div");
-      token.className = "city-token" + (ci.owner === myId ? " mine" : "");
-      if (world.sub_phase === "war" && ci.owner !== myId) token.classList.add("attackable");
-      token.style.background = ownerColor(ci);
-      token.textContent = `${ci.name} (👥${ci.population})`;
-      if (world.sub_phase === "war" && ci.owner !== myId) {
-        token.onclick = () => attack(ci.id);
-      }
-      div.appendChild(token);
-    });
-    map.appendChild(div);
-  });
-}
+  const canvas = document.createElement("div");
+  canvas.className = "map-canvas";
 
-function attack(cityId) {
-  action({ action: "target", city: cityId }).then(() => {
-    if (world.sub_phase === "war") toast("Target chosen! The battle is automatic. ⚔️", true);
+  // connector lines (svg uses 0..100 coordinates = percentages)
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("class", "map-lines");
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("preserveAspectRatio", "none");
+  canvas.appendChild(svg);
+
+  world.countries.forEach((c) => {
+    const pos = COUNTRY_MAP[c.id];
+    if (!pos) return;
+    const owner = Object.values(world.players).find((pl) => pl.country === c.id);
+    const color = owner ? owner.color : "#5a6a86";
+
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", pos.x); line.setAttribute("y1", pos.y);
+    line.setAttribute("x2", pos.lx); line.setAttribute("y2", pos.ly);
+    line.setAttribute("stroke", color);
+    line.setAttribute("stroke-width", "0.25");
+    line.setAttribute("stroke-dasharray", "1.2 0.9");
+    svg.appendChild(line);
+
+    const dot = document.createElement("div");
+    dot.className = "pin-dot";
+    dot.style.left = pos.x + "%";
+    dot.style.top = pos.y + "%";
+    dot.style.background = color;
+    dot.title = c.name;
+    canvas.appendChild(dot);
+
+    const cities = Object.values(world.cities).filter((ci) => ci.country === c.id);
+    const label = document.createElement("div");
+    label.className = "pin-label";
+    label.style.left = pos.lx + "%";
+    label.style.top = pos.ly + "%";
+    label.style.borderColor = color;
+    label.innerHTML =
+      `<div class="pl-title"><span class="dot" style="background:${color}"></span>${c.flag} ${c.name}</div>
+       <div class="pl-cities">${cities
+         .map((ci) => {
+           const oc = ci.owner ? world.players[ci.owner] : null;
+           const cc = oc ? oc.color : "#5a6a86";
+           const mine = ci.owner === myId ? " mine" : "";
+           return `<span class="ci${mine}" style="border-left-color:${cc}">${ci.name} <small>👥${ci.population}</small></span>`;
+         })
+         .join("")}</div>`;
+    canvas.appendChild(label);
   });
+
+  map.appendChild(canvas);
 }
 
 function renderWarPanel(p) {

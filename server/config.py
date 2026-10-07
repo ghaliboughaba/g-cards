@@ -10,8 +10,9 @@ below and restart the server. Nothing else needs to change.
 #  TIME
 # ---------------------------------------------------------------
 SECONDS_PER_CENTURY = 300      # one century = 5 minutes (300 seconds)
-BUILD_SECONDS = 240            # 4 minutes of building at the start of a century
-WAR_SECONDS = 60               # 1 minute of war at the end of a century
+BUILD_SECONDS = int(__import__("os").environ.get("GCARDS_BUILD_SECONDS", "240"))  # 4 minutes of building
+WAR_SECONDS = int(__import__("os").environ.get("GCARDS_WAR_SECONDS", "60"))      # 1 minute of war
+RESULT_SECONDS = 6             # a short pause to show the battle results
 TOTAL_CENTURIES = 5            # a whole game lasts 5 centuries
 TICK = 1.0                     # the game thinks once per second
 
