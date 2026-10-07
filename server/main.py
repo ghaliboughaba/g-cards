@@ -170,5 +170,8 @@ app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
 #  If you run THIS file directly (python server/main.py), start the server.
 # ---------------------------------------------------------------
 if __name__ == "__main__":
+    import os
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app,
+                host=os.environ.get("GCARDS_HOST", "127.0.0.1"),
+                port=int(os.environ.get("GCARDS_PORT", "8000")))

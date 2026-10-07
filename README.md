@@ -27,11 +27,37 @@ The player with the **most city points** (people + buildings + resources) wins!
 
 ---
 
+## 🎮🎮🎮🎮🎮 Run 5 versions at once
+
+Want five **separate** games at the same time? Each one is its own world with
+its own save file:
+
+```
+python run_all.py
+```
+
+That opens five links:
+
+| Version | Link |
+|---------|------|
+| Game 1 | http://127.0.0.1:8000 |
+| Game 2 | http://127.0.0.1:8001 |
+| Game 3 | http://127.0.0.1:8002 |
+| Game 4 | http://127.0.0.1:8003 |
+| Game 5 | http://127.0.0.1:8004 |
+
+- Press **Ctrl+C** to stop all five.
+- To let friends on your Wi‑Fi join, first run `set GCARDS_HOST=0.0.0.0`
+  (Windows) and then `python run_all.py` — the script prints the addresses to share.
+
+---
+
 ## 🧩 What each file does
 
 | File | What it is |
 |------|------------|
 | `run.py` | Starts everything. |
+| `run_all.py` | Starts 5 separate versions at once (ports 8000–8004). |
 | `server/config.py` | All the game numbers (costs, times, countries…). Change numbers here! |
 | `server/models.py` | The shapes of a Player and a City. |
 | `server/game.py` | The brain: the clock, the economy, and the wars. |

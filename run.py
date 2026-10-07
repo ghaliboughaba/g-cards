@@ -30,8 +30,9 @@ def main():
         print("=" * 64)
         return
 
-    uvicorn.run("server.main:app", host="127.0.0.1",
-                port=int(os.environ.get("GCARDS_PORT", "8000")), reload=False)
+    host = os.environ.get("GCARDS_HOST", "127.0.0.1")
+    port = int(os.environ.get("GCARDS_PORT", "8000"))
+    uvicorn.run("server.main:app", host=host, port=port, reload=False)
 
 
 if __name__ == "__main__":
