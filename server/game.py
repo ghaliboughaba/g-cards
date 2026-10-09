@@ -150,6 +150,19 @@ class GameWorld:
     def get_player(self, player_id: str):
         return self.players.get(player_id)
 
+    def leave(self, player_id: str):
+        """A human leaves. In the lobby the seat frees up; during a game a
+        computer player takes over their civilization."""
+        p = self.players.get(player_id)
+        if not p or p.is_bot:
+            return "You are not in the game."
+        name = p.name
+        self.votes.pop(player_id, None)
+        p.is_bot = True
+        p.name = "🤖 Computer"
+        self.system(f"{name} left the game.")
+        return None
+
     def has_human(self) -> bool:
         """Is there at least one real person playing?"""
         return any(not p.is_bot for p in self.players.values())

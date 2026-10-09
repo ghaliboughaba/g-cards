@@ -494,9 +494,18 @@ async function newGame() {
   getState();
 }
 
+async function leaveGame() {
+  if (!confirm("Leave the game? A computer will take over your civilization.")) return;
+  await action({ action: "leave" });
+  localStorage.removeItem("gcards_player");
+  myId = null;
+  location.reload();
+}
+
 $("pause-btn").onclick = () => action({ action: "pause" });
 $("new-game-btn").onclick = newGame;
 $("new-game").onclick = newGame;
+$("leave-btn").onclick = leaveGame;
 $("chat-send").onclick = () => {
   const input = $("chat-text");
   if (input.value.trim()) { action({ action: "chat", text: input.value }); input.value = ""; }

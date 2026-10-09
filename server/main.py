@@ -136,6 +136,8 @@ async def api_action(request: Request):
         error = world.set_target(pid, body.get("city"))
     elif action == "pause":
         error = world.toggle_pause(pid)
+    elif action == "leave":
+        error = world.leave(pid)
     elif action == "difficulty":
         error = world.set_difficulty(pid, body.get("level"))
     elif action == "chat":

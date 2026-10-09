@@ -104,6 +104,7 @@ input {
   cursor: pointer; border: none; border-radius: 8px;
   background: var(--gold); color: #04121c;
 }
+.pause-btn.leave { background: #7f1d1d; color: #ffdede; margin-left: 4px; }
 .resources { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px;
