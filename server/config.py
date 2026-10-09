@@ -46,7 +46,8 @@ STARTING_MONEY = 300
 STARTING_BP = 40               # building points
 STARTING_KP = 0                # knowledge points
 BASE_SATISFACTION = 70         # citizens start fairly happy (0..100)
-CITY_BASE_DEFENSE = 10         # a city defends itself a little
+CITY_BASE_DEFENSE = 10         # a capital city defends itself
+NEUTRAL_CITY_DEFENSE = 5       # a small/neutral city is easier to capture
 
 # ---------------------------------------------------------------
 #  VOTING

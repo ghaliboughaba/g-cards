@@ -312,7 +312,8 @@ function renderMap(p) {
   map.appendChild(canvas);
 
   world.countries.forEach((c) => {
-    const owner = Object.values(world.players).find((pl) => pl.country === c.id);
+    const capital = Object.values(world.cities).find((ci) => ci.country === c.id && ci.is_capital);
+    const owner = capital && capital.owner ? world.players[capital.owner] : null;
     const color = owner ? owner.color : "#6b7a94";
 
     const pin = document.createElement("div");

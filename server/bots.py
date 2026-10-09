@@ -77,19 +77,26 @@ def _try_build(world, player, city, building_id) -> bool:
 
 
 def bot_choose_target(world, player):
-    """Pick the easiest enemy city to attack."""
+    """Pick an easy city to attack. Bots avoid cities another player already picked,
+    and prefer neutral cities so the map fills up."""
     d = config.DIFFICULTIES.get(world.difficulty, config.DIFFICULTIES["normal"])
     if random.random() > d["bot_attacks"]:
         return
-    best = None
-    best_def = 99999
+
+    already_taken = {p.target for p in world.players.values() if p.target}
+    candidates = []
     for city in world.cities.values():
-        if city.owner == player.id:
+        if city.owner == player.id or city.id in already_taken:
             continue
         if city.owner and world.are_allied(player.id, city.owner):
             continue
-        if city.defense < best_def:
-            best = city
-            best_def = city.defense
-    if best:
-        player.target = best.id
+        candidates.append(city)
+    if not candidates:
+        return
+
+    neutral = [c for c in candidates if c.owner is None]
+    pool = neutral if neutral else candidates
+    pool.sort(key=lambda c: c.defense)
+    # choose randomly among the weakest quarter, so bots don't all hit one city
+    weak = pool[: max(2, len(pool) // 4)]
+    player.target = random.choice(weak).id

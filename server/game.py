@@ -68,7 +68,7 @@ class GameWorld:
                     owner=None,
                     population=config.STARTING_POPULATION if is_cap else random.randint(40, 70),
                     satisfaction=config.BASE_SATISFACTION,
-                    defense=config.CITY_BASE_DEFENSE,
+                    defense=config.CITY_BASE_DEFENSE if is_cap else config.NEUTRAL_CITY_DEFENSE,
                     is_capital=is_cap,
                     x=country["x"],
                     y=country["y"],
