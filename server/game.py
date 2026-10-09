@@ -277,8 +277,8 @@ class GameWorld:
         return None
 
     def set_target(self, player_id: str, city_id: str):
-        if self.sub_phase != "war":
-            return "You can only choose a target during the war phase."
+        if self.phase != "playing":
+            return "You can only choose a target during the game."
         city = self.cities.get(city_id)
         if not city:
             return "Unknown city."

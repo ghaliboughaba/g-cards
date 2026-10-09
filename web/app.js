@@ -304,6 +304,12 @@ function renderMyCities(p) {
   });
 }
 
+function setTarget(cityId) {
+  action({ action: "target", city: cityId }).then((d) => {
+    if (!d || !d.error) toast("🎯 Target set — attacked at the end of the century!", true);
+  });
+}
+
 function renderMap(p) {
   const map = $("map");
   map.innerHTML = "";
@@ -315,11 +321,18 @@ function renderMap(p) {
     const capital = Object.values(world.cities).find((ci) => ci.country === c.id && ci.is_capital);
     const owner = capital && capital.owner ? world.players[capital.owner] : null;
     const color = owner ? owner.color : "#6b7a94";
+    const targetable = world.phase === "playing" && capital && capital.owner !== myId;
+    const chosen = capital && p.target === capital.id;
 
     const pin = document.createElement("div");
-    pin.className = "pin" + (owner ? " owned" : "") + (c.y > 55 ? " tip-up" : "");
+    pin.className = "pin" + (owner ? " owned" : "") + (c.y > 55 ? " tip-up" : "")
+      + (targetable ? " targetable" : "") + (chosen ? " chosen-target" : "");
     pin.style.left = c.x + "%";
     pin.style.top = c.y + "%";
+    if (targetable) {
+      pin.title = `Attack ${capital.name}`;
+      pin.onclick = () => setTarget(capital.id);
+    }
 
     const cities = Object.values(world.cities).filter((ci) => ci.country === c.id);
     const rows = cities
@@ -342,7 +355,10 @@ function renderMap(p) {
 function renderWarPanel(p) {
   const box = $("war-panel");
   if (world.sub_phase !== "war") {
-    box.innerHTML = `<p style="color:var(--muted);font-size:13px">War comes at the end of the century. Get ready! ⚔️</p>`;
+    const t = p.target ? world.cities[p.target] : null;
+    box.innerHTML = t
+      ? `<p style="color:var(--good);font-size:13px">🎯 Your target: <b>${t.name}</b> — attacked at the end of the century.</p>`
+      : `<p style="color:var(--muted);font-size:13px">War comes at the end of the century. <b>Click a city on the map</b> to choose your target! ⚔️</p>`;
     return;
   }
   if (!p.alive) { box.innerHTML = "<i>You are out of the game.</i>"; return; }
