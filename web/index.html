@@ -4,10 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌍 G-Cards Civilizations</title>
-  <link rel="stylesheet" href="/style.css?v=4" />
+  <link rel="stylesheet" href="/style.css?v=5" />
 </head>
 <body>
   <div id="toast" class="toast hidden"></div>
+
+  <div id="buy-popup" class="buy-popup hidden">
+    <div class="buy-popup-head"><span id="buy-name">buy</span><button id="buy-close">✕</button></div>
+    <input id="buy-range" type="range" min="0" max="1" value="1" />
+    <div class="buy-popup-info"><b id="buy-amount">1</b> × 💰<span id="buy-price">-</span> = 💰<b id="buy-total">-</b></div>
+    <button id="buy-confirm" class="big-btn">Buy</button>
+  </div>
 
   <!-- ======================= JOIN SCREEN ======================= -->
   <section id="screen-join" class="screen hidden">
@@ -131,6 +138,6 @@
     <button id="play-again" class="big-btn">Play again</button>
   </section>
 
-  <script src="/app.js?v=4"></script>
+  <script src="/app.js?v=5"></script>
 </body>
 </html>

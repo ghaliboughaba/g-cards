@@ -30,6 +30,7 @@ function toast(msg, ok) {
 }
 
 function showScreen(name) {
+  if (name !== "game") closeBuy();
   ["join", "voting", "game", "finished"].forEach((s) => {
     $("screen-" + s).classList.toggle("hidden", s !== name);
   });
@@ -448,24 +449,53 @@ function renderMaterials(p) {
     btn.className = "mini";
     btn.style.margin = "3px";
     btn.innerHTML = `${matEmoji(m)} buy ${m} <small>💰${world.material_price[m]}</small>`;
-    btn.onclick = () => buyMaterial(m);
+    btn.onclick = () => openBuy(m, btn);
     box.appendChild(btn);
   });
 }
 
-function buyMaterial(material) {
+let buyFor = null; // which material the slider is buying
+
+function openBuy(material, btn) {
   const price = world.material_price[material];
-  const answer = prompt(
-    `How much ${material} do you want to buy?\n(1 ${material} = ${price} money)`,
-    "1"
-  );
-  if (answer === null) return; // cancelled
-  const amount = parseInt(answer, 10);
-  if (!Number.isFinite(amount) || amount < 1) {
-    toast("Please type a whole number of 1 or more.");
-    return;
-  }
-  action({ action: "buy", material, amount });
+  const p = me();
+  const max = Math.max(0, Math.floor((p ? p.money : 0) / price));
+  buyFor = material;
+  const pop = $("buy-popup");
+  pop.classList.remove("hidden");
+  $("buy-name").innerHTML = `${matEmoji(material)} ${material}`;
+  $("buy-price").textContent = price;
+  const range = $("buy-range");
+  range.min = 0;
+  range.max = Math.max(1, max);
+  range.value = max >= 1 ? 1 : 0;
+  updateBuyInfo();
+  positionBuyPopup(btn);
+}
+
+function positionBuyPopup(btn) {
+  const pop = $("buy-popup");
+  const r = btn.getBoundingClientRect();
+  const pr = pop.getBoundingClientRect();
+  let left = Math.min(r.left, window.innerWidth - pr.width - 8);
+  let top = r.top - pr.height - 6;
+  if (top < 8) top = r.bottom + 6;
+  pop.style.left = Math.max(8, left) + "px";
+  pop.style.top = Math.max(8, Math.min(top, window.innerHeight - pr.height - 8)) + "px";
+}
+
+function updateBuyInfo() {
+  if (!buyFor) return;
+  const amount = parseInt($("buy-range").value, 10) || 0;
+  const price = world.material_price[buyFor];
+  $("buy-amount").textContent = amount;
+  $("buy-total").textContent = amount * price;
+  $("buy-confirm").disabled = amount < 1;
+}
+
+function closeBuy() {
+  buyFor = null;
+  $("buy-popup").classList.add("hidden");
 }
 
 function renderChat() {
@@ -528,6 +558,15 @@ $("country-filter").addEventListener("input", (e) => {
   countryFilter = e.target.value;
   if (world) renderJoin();
 });
+$("buy-range").addEventListener("input", updateBuyInfo);
+$("buy-close").onclick = closeBuy;
+$("buy-confirm").onclick = () => {
+  const amount = parseInt($("buy-range").value, 10) || 0;
+  if (amount < 1) { toast("Choose at least 1."); return; }
+  action({ action: "buy", material: buyFor, amount });
+  closeBuy();
+};
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBuy(); });
 $("chat-send").onclick = () => {
   const input = $("chat-text");
   if (input.value.trim()) { action({ action: "chat", text: input.value }); input.value = ""; }

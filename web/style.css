@@ -324,6 +324,19 @@ input {
 
 .error { color: var(--bad); font-weight: bold; }
 
+/* ---- buy-material slider popup ---- */
+.buy-popup {
+  position: fixed; z-index: 60; width: 220px;
+  background: var(--panel); border: 1px solid var(--accent); border-radius: 10px;
+  padding: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+}
+.buy-popup-head { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px; margin-bottom: 6px; }
+.buy-popup-head button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; }
+.buy-popup input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
+.buy-popup-info { font-size: 12.5px; color: var(--muted); margin: 4px 0 8px; }
+.buy-popup .big-btn { width: 100%; padding: 8px; font-size: 14px; }
+.buy-popup .big-btn:disabled { opacity: .5; cursor: not-allowed; }
+
 /* ---- toast ---- */
 .toast {
   position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
