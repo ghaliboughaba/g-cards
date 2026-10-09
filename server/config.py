@@ -298,7 +298,8 @@ DEFAULT_DIFFICULTY = "normal"
 DIFFICULTIES = {
     "easy": {
         "name": "Easy", "emoji": "🙂",
-        "info": "Computer players are slow and friendly.",
+        "info": "Short game (3 centuries). Computer players are slow and friendly.",
+        "centuries": 3,
         "bot_activity": 0.30,
         "bot_economy": 0.8,
         "bot_start_extra": 0,
@@ -306,7 +307,8 @@ DIFFICULTIES = {
     },
     "normal": {
         "name": "Normal", "emoji": "😐",
-        "info": "A fair fight.",
+        "info": "5 centuries. A fair fight.",
+        "centuries": 5,
         "bot_activity": 0.50,
         "bot_economy": 1.0,
         "bot_start_extra": 0,
@@ -314,7 +316,8 @@ DIFFICULTIES = {
     },
     "hard": {
         "name": "Hard", "emoji": "😈",
-        "info": "Computer players are rich, quick and ruthless.",
+        "info": "Long game (7 centuries). Computer players are rich, quick and ruthless.",
+        "centuries": 7,
         "bot_activity": 0.85,
         "bot_economy": 1.5,
         "bot_start_extra": 250,

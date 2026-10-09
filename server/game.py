@@ -161,6 +161,10 @@ class GameWorld:
     def difficulty_data(self) -> dict:
         return config.DIFFICULTIES.get(self.difficulty, config.DIFFICULTIES["normal"])
 
+    def total_centuries(self) -> int:
+        """How many centuries this game lasts (depends on difficulty)."""
+        return self.difficulty_data().get("centuries", config.TOTAL_CENTURIES)
+
     def set_difficulty(self, player_id: str, level: str):
         if self.phase != "voting":
             return "You can only choose the difficulty before the game starts."
@@ -504,7 +508,7 @@ class GameWorld:
     # --- move on to the next century ----------------------------
     def _next_century(self):
         self.century_index += 1
-        if self.century_index >= config.TOTAL_CENTURIES:
+        if self.century_index >= self.total_centuries():
             self._finish_game()
             return
         self.century += 1
@@ -679,7 +683,7 @@ class GameWorld:
             "phase": self.phase,
             "century": self.century,
             "century_index": self.century_index,
-            "total_centuries": config.TOTAL_CENTURIES,
+            "total_centuries": self.total_centuries(),
             "sub_phase": self.sub_phase,
             "time_left": round(self.time_left, 1),
             "vote_time_left": round(self.vote_time_left, 1),
