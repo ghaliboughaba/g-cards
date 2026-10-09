@@ -57,19 +57,8 @@ class GameWorld:
 
     # --- create the cities of every country ---------------------
     def _create_countries(self):
-        city_names = {
-            "croatia": ["Zagreb", "Split", "Dubrovnik"],
-            "morocco": ["Rabat", "Marrakesh", "Casablanca"],
-            "italy":   ["Rome", "Milan", "Naples"],
-            "japan":   ["Tokyo", "Osaka", "Kyoto"],
-            "denmark": ["Copenhagen", "Aarhus", "Odense"],
-            "usa":     ["Washington", "New York", "Los Angeles"],
-            "france":  ["Paris", "Lyon", "Marseille"],
-            "england": ["London", "Manchester", "Birmingham"],
-        }
         for country in config.COUNTRIES:
-            names = city_names[country["id"]]
-            for i, name in enumerate(names):
+            for i, name in enumerate(country["cities"]):
                 cid = f"{country['id']}_{name.lower().replace(' ', '_')}"
                 is_cap = (i == 0)
                 self.cities[cid] = City(
@@ -81,18 +70,20 @@ class GameWorld:
                     satisfaction=config.BASE_SATISFACTION,
                     defense=config.CITY_BASE_DEFENSE,
                     is_capital=is_cap,
-                    x=random.randint(60, 780),
-                    y=random.randint(60, 420),
+                    x=country["x"],
+                    y=country["y"],
                 )
 
-    # --- fill the 5 seats with computer players -----------------
+    # --- fill the seats with computer players -------------------
     def _create_bots(self):
         names = ["Ada", "Boris", "Cleo", "Dario", "Elena", "Farid", "Gina", "Hugo"]
-        for i, country in enumerate(config.COUNTRIES):
+        # only MAX_PLAYERS countries take part in this game
+        chosen = random.sample(config.COUNTRIES, min(config.MAX_PLAYERS, len(config.COUNTRIES)))
+        for i, country in enumerate(chosen):
             pid = f"bot_{country['id']}"
             player = Player(
                 id=pid,
-                name=f"{names[i]} (bot)",
+                name=f"{names[i % len(names)]} (bot)",
                 country=country["id"],
                 is_bot=True,
                 color=country["color"],
@@ -117,30 +108,44 @@ class GameWorld:
     #  PLAYERS JOINING
     # ============================================================
     def join(self, name: str, country_id: str):
-        """A human takes over a country (replacing its bot)."""
+        """A human picks a country. If no bot has it, we move a bot there,
+        so there are always exactly MAX_PLAYERS players in the game."""
         if self.phase != "voting":
             return None, "The game has already started. Ask to watch instead!"
         country = next((c for c in config.COUNTRIES if c["id"] == country_id), None)
         if country is None:
             return None, "Unknown country."
-        if country.get("bot_only"):
-            return None, f"{country['name']} is always controlled by a computer."
 
         # is that country already taken by a human?
         for p in self.players.values():
             if p.country == country_id and not p.is_bot:
                 return None, "Sorry, that country is already taken."
 
-        # find the bot of that country and turn it into the human
-        for p in self.players.values():
-            if p.country == country_id and p.is_bot:
-                p.is_bot = False
-                p.name = name
-                # give friends more time to join after someone arrives
-                self.vote_time_left = config.VOTE_SECONDS
-                self.system(f"{name} joined as {country_id.title()}!")
-                return p, None
-        return None, "That country is not available."
+        capital = self._capital_of(country_id)
+
+        # if a bot owns it, take over that bot...
+        if capital.owner and self.players[capital.owner].is_bot:
+            bot = self.players[capital.owner]
+        else:
+            # ...otherwise move a free bot to this country
+            bot = next((p for p in self.players.values() if p.is_bot), None)
+            if bot is None:
+                return None, "All 8 seats are already taken by humans!"
+            for old_id in list(bot.cities):
+                self.cities[old_id].owner = None
+            bot.cities = []
+            capital.owner = bot.id
+            bot.cities = [capital.id]
+            bot.country = country_id
+            bot.color = country["color"]
+            bot.flag = country["flag"]
+
+        bot.is_bot = False
+        bot.name = name
+        # give friends more time to join after someone arrives
+        self.vote_time_left = config.VOTE_SECONDS
+        self.system(f"{name} joined as {country['name']}!")
+        return bot, None
 
     def get_player(self, player_id: str):
         return self.players.get(player_id)

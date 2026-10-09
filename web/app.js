@@ -98,16 +98,15 @@ function renderJoin() {
   const box = $("country-list");
   box.innerHTML = "";
   $("join-status").textContent = world.phase === "voting"
-    ? ""
+    ? "Pick any country — 8 countries take part in every game."
     : "⚠️ A game is already in progress. Click “Start a new game” below to play.";
   world.countries.forEach((c) => {
     const owner = Object.values(world.players).find((p) => p.country === c.id);
-    const botOnly = !!c.bot_only;
-    const taken = botOnly || (owner && !owner.is_bot);
+    const taken = owner && !owner.is_bot;
     const el = document.createElement("div");
     el.className = "country-card" + (taken ? " taken" : "");
     el.innerHTML = `<div class="flag">${c.flag}</div><div class="cname">${c.name}</div>
-      <div style="color:var(--muted);font-size:12px">${botOnly ? "🤖 computer" : c.capital}</div>`;
+      <div style="color:var(--muted);font-size:11px">${c.capital}</div>`;
     if (!taken) {
       el.onclick = () => {
         const name = $("name-input").value.trim();
@@ -305,75 +304,38 @@ function renderMyCities(p) {
   });
 }
 
-// real positions of each country on the Earth map (percentages of the map image).
-// x/y = where the country is, lx/ly = where its label is placed (fanned out).
-const COUNTRY_MAP = {
-  croatia: { x: 52.1, y: 32.5, lx: 61,   ly: 31 },
-  morocco: { x: 45.0, y: 41.0, lx: 41,   ly: 48 },
-  italy:   { x: 51.2, y: 33.6, lx: 58,   ly: 42 },
-  japan:   { x: 85.9, y: 32.1, lx: 85.9, ly: 39 },
-  denmark: { x: 50.1, y: 25.4, lx: 53,   ly: 15 },
-  usa:     { x: 21.7, y: 33.6, lx: 21.7, ly: 41 },
-  france:  { x: 48.2, y: 31.1, lx: 36,   ly: 27 },
-  england: { x: 47.1, y: 26.7, lx: 35,   ly: 18 },
-};
-
 function renderMap(p) {
   const map = $("map");
   map.innerHTML = "";
   const canvas = document.createElement("div");
   canvas.className = "map-canvas";
-
-  // connector lines (svg uses 0..100 coordinates = percentages)
-  const svgNS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("class", "map-lines");
-  svg.setAttribute("viewBox", "0 0 100 100");
-  svg.setAttribute("preserveAspectRatio", "none");
-  canvas.appendChild(svg);
+  map.appendChild(canvas);
 
   world.countries.forEach((c) => {
-    const pos = COUNTRY_MAP[c.id];
-    if (!pos) return;
     const owner = Object.values(world.players).find((pl) => pl.country === c.id);
-    const color = owner ? owner.color : "#5a6a86";
+    const color = owner ? owner.color : "#6b7a94";
 
-    const line = document.createElementNS(svgNS, "line");
-    line.setAttribute("x1", pos.x); line.setAttribute("y1", pos.y);
-    line.setAttribute("x2", pos.lx); line.setAttribute("y2", pos.ly);
-    line.setAttribute("stroke", color);
-    line.setAttribute("stroke-width", "0.25");
-    line.setAttribute("stroke-dasharray", "1.2 0.9");
-    svg.appendChild(line);
-
-    const dot = document.createElement("div");
-    dot.className = "pin-dot";
-    dot.style.left = pos.x + "%";
-    dot.style.top = pos.y + "%";
-    dot.style.background = color;
-    dot.title = c.name;
-    canvas.appendChild(dot);
+    const pin = document.createElement("div");
+    pin.className = "pin" + (owner ? " owned" : "") + (c.y > 55 ? " tip-up" : "");
+    pin.style.left = c.x + "%";
+    pin.style.top = c.y + "%";
 
     const cities = Object.values(world.cities).filter((ci) => ci.country === c.id);
-    const label = document.createElement("div");
-    label.className = "pin-label";
-    label.style.left = pos.lx + "%";
-    label.style.top = pos.ly + "%";
-    label.style.borderColor = color;
-    label.innerHTML =
-      `<div class="pl-title"><span class="dot" style="background:${color}"></span>${c.flag} ${c.name}</div>
-       <div class="pl-cities">${cities
-         .map((ci) => {
-           const oc = ci.owner ? world.players[ci.owner] : null;
-           const cc = oc ? oc.color : "#5a6a86";
-           const mine = ci.owner === myId ? " mine" : "";
-           return `<span class="ci${mine}" style="border-left-color:${cc}">${ci.name} <small>👥${ci.population}</small></span>`;
-         })
-         .join("")}</div>`;
-    canvas.appendChild(label);
-  });
+    const rows = cities
+      .map((ci) => {
+        const oc = ci.owner ? world.players[ci.owner] : null;
+        const cc = oc ? oc.color : "#6b7a94";
+        const mine = ci.owner === myId ? " mine" : "";
+        return `<span class="ci${mine}" style="border-left-color:${cc}">${ci.name} <small>${oc ? oc.name : "Neutral"}</small></span>`;
+      })
+      .join("");
 
-  map.appendChild(canvas);
+    pin.innerHTML =
+      `<span class="pin-dot" style="background:${color}"></span>` +
+      (owner ? `<span class="pin-name">${c.flag} ${c.name}</span>` : "") +
+      `<div class="pin-tip"><div class="tip-head"><span class="dot" style="background:${color}"></span>${c.flag} ${c.name}</div><div class="pl-cities">${rows}</div></div>`;
+    canvas.appendChild(pin);
+  });
 }
 
 function renderWarPanel(p) {

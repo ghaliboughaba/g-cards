@@ -2,6 +2,9 @@
 
 An online real-time strategy game about civilizations through the centuries.
 
+The world map has **~50 major countries** (with ~150 cities). Each game, only
+**8 countries** are real players/bots — the rest are **neutral** cities you can conquer.
+
 You start with **1 city** and **100 citizens**. Every **century lasts 5 minutes**.
 At the **end of each century there is a war**. Win wars to take cities.
 The player with the **most city points** (people + buildings + resources) wins!
