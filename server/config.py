@@ -98,7 +98,7 @@ _RAW_COUNTRIES = [
     ("iran", "Iran", "🇮🇷", 35.69, 51.39, ["Tehran", "Mashhad", "Isfahan"]),
     ("saudiarabia", "Saudi Arabia", "🇸🇦", 24.71, 46.68, ["Riyadh", "Jeddah", "Mecca"]),
     ("kazakhstan", "Kazakhstan", "🇰🇿", 51.17, 71.45, ["Astana", "Almaty", "Shymkent"]),
-    ("israel", "Israel", "🇮🇱", 31.78, 35.22, ["Jerusalem", "Tel Aviv", "Haifa"]),
+    ("palestine", "Palestine", "🇵🇸", 31.90, 35.20, ["Ramallah", "Gaza", "Hebron"]),
     # --- Africa ---
     ("egypt", "Egypt", "🇪🇬", 30.04, 31.24, ["Cairo", "Alexandria", "Giza"]),
     ("morocco", "Morocco", "🇲🇦", 34.02, -6.84, ["Rabat", "Casablanca", "Marrakesh"]),
