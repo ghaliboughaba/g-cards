@@ -8,6 +8,7 @@
 
 let world = null;            // the latest news from the server
 let myId = localStorage.getItem("gcards_player"); // our player id
+let countryFilter = "";      // text typed in the "your country" filter box
 let socket = null;
 
 /* ---------- small helpers ---------- */
@@ -111,7 +112,13 @@ function renderJoin() {
   $("join-status").textContent = world.phase === "voting"
     ? "Pick any country — 8 countries take part in every game."
     : "⚠️ A game is already in progress. Click “Start a new game” below to play.";
-  world.countries.forEach((c) => {
+  const q = countryFilter.trim().toLowerCase();
+  const list = world.countries.filter((c) => !q || c.name.toLowerCase().startsWith(q));
+  if (!list.length) {
+    box.innerHTML = `<p class="muted">No country starts with “${escapeHtml(countryFilter)}”.</p>`;
+    return;
+  }
+  list.forEach((c) => {
     const owner = Object.values(world.players).find((p) => p.country === c.id);
     const taken = owner && !owner.is_bot;
     const el = document.createElement("div");
@@ -517,6 +524,10 @@ $("pause-btn").onclick = () => action({ action: "pause" });
 $("new-game-btn").onclick = newGame;
 $("new-game").onclick = newGame;
 $("leave-btn").onclick = leaveGame;
+$("country-filter").addEventListener("input", (e) => {
+  countryFilter = e.target.value;
+  if (world) renderJoin();
+});
 $("chat-send").onclick = () => {
   const input = $("chat-text");
   if (input.value.trim()) { action({ action: "chat", text: input.value }); input.value = ""; }

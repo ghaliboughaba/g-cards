@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌍 G-Cards Civilizations</title>
-  <link rel="stylesheet" href="/style.css?v=3" />
+  <link rel="stylesheet" href="/style.css?v=4" />
 </head>
 <body>
   <div id="toast" class="toast hidden"></div>
@@ -14,10 +14,16 @@
     <h1>🌍 G-Cards <span>Civilizations</span></h1>
     <p class="tagline">Build a civilization. Survive 5 centuries. Take the most cities!</p>
 
-    <label class="field">
-      Your name
-      <input id="name-input" maxlength="20" placeholder="e.g. Alex" />
-    </label>
+    <div class="join-fields">
+      <label class="field">
+        Your name
+        <input id="name-input" maxlength="20" placeholder="e.g. Alex" />
+      </label>
+      <label class="field">
+        Your country
+        <input id="country-filter" maxlength="30" placeholder="type to filter… (e.g. ma)" autocomplete="off" />
+      </label>
+    </div>
 
     <h2>Pick your country</h2>
     <div id="country-list" class="country-list"></div>
@@ -125,6 +131,6 @@
     <button id="play-again" class="big-btn">Play again</button>
   </section>
 
-  <script src="/app.js?v=3"></script>
+  <script src="/app.js?v=4"></script>
 </body>
 </html>

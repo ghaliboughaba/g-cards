@@ -43,6 +43,9 @@ h3 small { color: var(--muted); font-weight: normal; font-size: 11px; }
 .tagline { color: var(--muted); margin-top: 0; }
 
 .field { display: block; color: var(--muted); margin: 18px 0; }
+.join-fields { display: flex; flex-wrap: wrap; gap: 16px; }
+.join-fields .field { flex: 1 1 240px; margin: 18px 0 0; }
+.join-fields .field input { max-width: none; }
 input {
   display: block; width: 100%; max-width: 360px; margin-top: 6px;
   padding: 12px; border-radius: 8px; border: 1px solid var(--line);
