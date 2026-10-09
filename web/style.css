@@ -57,6 +57,9 @@ input {
 }
 .country-card:hover { transform: translateY(-2px); border-color: var(--accent); }
 .country-card .flag { font-size: 24px; }
+.country-card .flag .flag-img { height: 24px; }
+.flag-img { height: 1.05em; width: auto; vertical-align: -0.15em; border-radius: 2px; }
+.map .flag-img, .player-row .flag-img, .war-target .flag-img { height: 12px; }
 .country-card .cname { font-weight: bold; margin-top: 3px; font-size: 12px; }
 .country-card.taken { opacity: .4; cursor: not-allowed; }
 

@@ -94,6 +94,17 @@ function render() {
 }
 
 /* ---------- join screen ---------- */
+// Windows Chrome can't show flag emojis, so we use real flag images instead.
+function flagIcon(flag) {
+  let iso = "";
+  for (const ch of flag || "") {
+    const cp = ch.codePointAt(0);
+    if (cp >= 0x1f1e6 && cp <= 0x1f1ff) iso += String.fromCharCode(cp - 0x1f1e6 + 97);
+  }
+  if (!iso) return flag || "";
+  return `<img class="flag-img" src="/flags/${iso}.png" alt="${iso}" title="${iso.toUpperCase()}">`;
+}
+
 function renderJoin() {
   const box = $("country-list");
   box.innerHTML = "";
@@ -105,7 +116,7 @@ function renderJoin() {
     const taken = owner && !owner.is_bot;
     const el = document.createElement("div");
     el.className = "country-card" + (taken ? " taken" : "");
-    el.innerHTML = `<div class="flag">${c.flag}</div><div class="cname">${c.name}</div>
+    el.innerHTML = `<div class="flag">${flagIcon(c.flag)}</div><div class="cname">${c.name}</div>
       <div style="color:var(--muted);font-size:11px">${c.capital}</div>`;
     if (!taken) {
       el.onclick = () => {
@@ -233,7 +244,7 @@ function renderWarTargets(p) {
     b.className = "war-target" + (p.target === c.id ? " chosen" : "");
     b.style.borderColor = color;
     b.innerHTML = `<span class="wt-name"><span class="dot" style="background:${color}"></span>${c.name}</span>
-      <small>${owner ? owner.flag + " " + owner.name : "Neutral"} · 🛡️${c.defense} · 👥${c.population}</small>`;
+      <small>${owner ? flagIcon(owner.flag) + " " + owner.name : "Neutral"} · 🛡️${c.defense} · 👥${c.population}</small>`;
     b.onclick = () => action({ action: "target", city: c.id });
     box.appendChild(b);
   });
@@ -346,8 +357,8 @@ function renderMap(p) {
 
     pin.innerHTML =
       `<span class="pin-dot" style="background:${color}"></span>` +
-      (owner ? `<span class="pin-name">${c.flag} ${c.name}</span>` : "") +
-      `<div class="pin-tip"><div class="tip-head"><span class="dot" style="background:${color}"></span>${c.flag} ${c.name}</div><div class="pl-cities">${rows}</div></div>`;
+      (owner ? `<span class="pin-name">${flagIcon(c.flag)} ${c.name}</span>` : "") +
+      `<div class="pin-tip"><div class="tip-head"><span class="dot" style="background:${color}"></span>${flagIcon(c.flag)} ${c.name}</div><div class="pl-cities">${rows}</div></div>`;
     canvas.appendChild(pin);
   });
 }
@@ -375,7 +386,7 @@ function renderPlayers() {
   list.forEach((p) => {
     const row = document.createElement("div");
     row.className = "player-row" + (p.alive ? "" : " dead");
-    row.innerHTML = `<span><span class="dot" style="background:${p.color}"></span>${p.flag} ${p.name}</span>
+    row.innerHTML = `<span><span class="dot" style="background:${p.color}"></span>${flagIcon(p.flag)} ${p.name}</span>
       <span style="color:var(--muted);font-size:12px">🏙️ ${p.cities.length} · 🪖 ${Object.values(p.troops || {}).reduce((a, b) => a + b, 0)}
       ${p.id === myId ? "" : `<button class="mini" data-ally="${p.id}">🤝</button>`}</span>`;
     box.appendChild(row);
@@ -467,7 +478,7 @@ function renderFinished() {
   const box = $("final-scores");
   box.innerHTML = world.scores.map((s, i) => `
     <div class="player-row" style="font-size:16px">
-      <span>${["🥇", "🥈", "🥉"][i] || "•"} ${s.flag} ${s.name}</span>
+      <span>${["🥇", "🥈", "🥉"][i] || "•"} ${flagIcon(s.flag)} ${s.name}</span>
       <span>👥 ${s.citizens} · 🏗️ ${s.buildings} · 📦 ${s.resources} · <b>${s.score} pts</b></span>
     </div>`).join("");
 }
