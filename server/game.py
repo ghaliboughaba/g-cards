@@ -143,6 +143,8 @@ class GameWorld:
 
         bot.is_bot = False
         bot.name = name
+        # the human votes for themselves (clear any vote the computer had made)
+        self.votes.pop(bot.id, None)
         # give friends more time to join after someone arrives
         self.vote_time_left = config.VOTE_SECONDS
         self.system(f"{name} joined as {country['name']}!")
@@ -350,14 +352,15 @@ class GameWorld:
             return
 
         if self.phase == "voting":
-            # wait for a real person before the vote can count
+            # computer players vote right away, so the lobby looks alive
+            for p in list(self.players.values()):
+                if p.is_bot and p.id not in self.votes:
+                    bots.bot_vote(self, p)
+            # ...but the game waits for a real person before it starts
             if not self.has_human():
                 self.vote_time_left = config.VOTE_SECONDS
                 return
             self.vote_time_left -= dt
-            for p in list(self.players.values()):
-                if p.is_bot and p.id not in self.votes:
-                    bots.bot_vote(self, p)
             if self.vote_time_left <= 0:
                 self._start_game()
 
