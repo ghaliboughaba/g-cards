@@ -35,6 +35,7 @@ SECONDS_PER_CENTURY = 300      # one century = 5 minutes (300 seconds)
 BUILD_SECONDS = int(os.environ.get("GCARDS_BUILD_SECONDS", "240"))  # 4 minutes of building
 WAR_SECONDS = int(os.environ.get("GCARDS_WAR_SECONDS", "60"))       # 1 minute of war
 RESULT_SECONDS = 6             # a short pause to show the battle results
+RESTART_SECONDS = 50           # after the game ends, wait this long, then start over
 TOTAL_CENTURIES = 5            # a whole game lasts 5 centuries
 TICK = 1.0                     # the game thinks once per second
 

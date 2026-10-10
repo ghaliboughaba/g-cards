@@ -512,6 +512,8 @@ function escapeHtml(s) {
 
 /* ---------- finished screen ---------- */
 function renderFinished() {
+  const secs = Math.max(0, Math.ceil(world.restart_time_left || 0));
+  $("restart-info").textContent = `🔄 A new game starts automatically in ${secs} seconds…`;
   const box = $("final-scores");
   box.innerHTML = world.scores.map((s, i) => `
     <div class="player-row" style="font-size:16px">

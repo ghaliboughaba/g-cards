@@ -41,6 +41,7 @@ class GameWorld:
         self.paused = False
         self.difficulty = config.DEFAULT_DIFFICULTY
         self.war_results = []
+        self.restart_time_left = 0
 
         self.players: dict[str, Player] = {}
         self.cities: dict[str, City] = {}
@@ -375,6 +376,12 @@ class GameWorld:
             elif self.sub_phase == "result" and self.time_left <= 0:
                 self._next_century()
 
+        elif self.phase == "finished":
+            # the game is over: after a short break, start a brand new game
+            self.restart_time_left -= dt
+            if self.restart_time_left <= 0:
+                self.reset()
+
     # --- voting is done, begin the game -------------------------
     def _start_game(self):
         if self.phase != "voting":
@@ -531,9 +538,11 @@ class GameWorld:
     def _finish_game(self):
         self.phase = "finished"
         self.scores = self.compute_scores()
+        self.restart_time_left = config.RESTART_SECONDS
         if self.scores:
             winner = self.scores[0]
             self.system(f"🏆 {winner['name']} wins the game with {winner['score']} city points!")
+        self.system(f"🔄 A new game starts in {config.RESTART_SECONDS} seconds...")
 
     # ============================================================
     #  ECONOMY  (money, points, materials, happiness)
@@ -650,6 +659,7 @@ class GameWorld:
             "paused": self.paused,
             "difficulty": self.difficulty,
             "war_results": self.war_results,
+            "restart_time_left": self.restart_time_left,
             "players": {pid: p.__dict__ for pid, p in self.players.items()},
             "cities": {cid: c.__dict__ for cid, c in self.cities.items()},
             "votes": self.votes,
@@ -671,6 +681,7 @@ class GameWorld:
         self.paused = data.get("paused", False)
         self.difficulty = data.get("difficulty", config.DEFAULT_DIFFICULTY)
         self.war_results = data.get("war_results", [])
+        self.restart_time_left = data.get("restart_time_left", 0)
         self.players = {}
         for pid, raw in data["players"].items():
             p = Player(id=raw["id"], name=raw["name"], country=raw["country"])
@@ -704,6 +715,7 @@ class GameWorld:
             "human_count": self.human_count(),
             "can_pause": self.can_pause(),
             "can_reset": self.human_count() <= 1,
+            "restart_time_left": round(self.restart_time_left, 1),
             "difficulty": self.difficulty,
             "difficulties": config.DIFFICULTIES,
             "war_preview": self.war_preview(),
