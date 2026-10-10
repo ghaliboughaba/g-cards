@@ -54,7 +54,7 @@ NEUTRAL_CITY_DEFENSE = 5       # a small/neutral city is easier to capture
 #  VOTING
 # ---------------------------------------------------------------
 MAX_PLAYERS = 8                # one seat per country (see COUNTRIES below)
-VOTE_SECONDS = 180             # how long players may gather in the lobby (3 minutes)
+VOTE_SECONDS = 50              # how long the voting lobby waits before it starts (50 s)
 CENTURY_CHOICES = list(range(10, 16)) + list(range(20, 26))  # 10..15 and 20..25
 
 # ---------------------------------------------------------------
