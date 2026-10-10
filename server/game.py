@@ -562,13 +562,15 @@ class GameWorld:
 
             bp_bonus = 0.0
             money_bonus = 0.0
+            kp_bonus = 0.0
             for c in cities:
                 for bid, count in c.buildings.items():
                     bp_bonus += config.BUILDINGS[bid].get("building_bonus", 0) * count
                     money_bonus += config.BUILDINGS[bid].get("money_bonus", 0) * count
+                    kp_bonus += config.BUILDINGS[bid].get("knowledge_bonus", 0) * count
             p.building_points += (config.BP_PER_SECOND + bp_bonus) * dt * m
             p.money += money_bonus * happiness * dt * m
-            p.knowledge_points += config.KP_PER_SECOND * dt * m
+            p.knowledge_points += (config.KP_PER_SECOND + kp_bonus) * dt * m
 
             # people grow when they are happy and there is room
             for c in cities:

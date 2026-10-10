@@ -221,6 +221,12 @@ BUILDINGS = {
         "building_bonus": 1.0, "points": 12,
         "info": "Makes building points faster. +1 building point each second.",
     },
+    "school": {
+        "name": "School", "emoji": "🏫",
+        "cost_money": 100, "materials": {"stone": 15, "gold": 5}, "cost_bp": 8,
+        "knowledge_bonus": 0.10, "satisfaction": 2, "points": 10,
+        "info": "Teaches your people. +2 happiness, +0.1 knowledge points each second.",
+    },
 }
 
 # ---------------------------------------------------------------

@@ -40,6 +40,8 @@ def bot_act(world, player, dt):
         return
     if _try_build(world, player, city, "house"):
         return
+    if random.random() < 0.5 and _try_build(world, player, city, "school"):
+        return
 
     # 2) make sure there is a barracks and a wall
     if not world._owns_building(player, "barracks"):
