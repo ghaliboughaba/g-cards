@@ -25,7 +25,8 @@ class City:
     buildings: dict = field(default_factory=dict)   # building_id -> how many
     defense: int = 10
     is_capital: bool = False
-    x: int = 0                # position on the map (for later)
+    resource: str = "stone"     # what this city extracts from the ground
+    x: int = 0                  # position on the map (for later)
     y: int = 0
 
     def building_points_value(self) -> int:
@@ -47,6 +48,7 @@ class City:
             "buildings": self.buildings,
             "defense": self.defense,
             "is_capital": self.is_capital,
+            "resource": self.resource,
             "x": self.x,
             "y": self.y,
         }

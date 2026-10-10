@@ -140,6 +140,25 @@ def _country_color(index):
     return f"hsl({hue:.0f}, 68%, 55%)"
 
 
+# What raw material each country is famous for (based on where it is on Earth).
+# Countries not listed produce stone.
+_COUNTRY_RESOURCE = {
+    # diamonds
+    "southafrica": "diamond", "russia": "diamond", "canada": "diamond",
+    "australia": "diamond", "brazil": "diamond", "india": "diamond", "tanzania": "diamond",
+    # gold
+    "china": "gold", "usa": "gold", "ghana": "gold", "peru": "gold", "mexico": "gold",
+    "indonesia": "gold", "chile": "gold", "egypt": "gold", "saudiarabia": "gold",
+    "morocco": "gold", "colombia": "gold", "argentina": "gold", "ethiopia": "gold",
+    # iron
+    "sweden": "iron", "ukraine": "iron", "kazakhstan": "iron", "england": "iron",
+    "france": "iron", "germany": "iron", "spain": "iron", "poland": "iron",
+    "norway": "iron", "finland": "iron", "greece": "iron", "romania": "iron",
+    "croatia": "iron", "switzerland": "iron", "ireland": "iron", "netherlands": "iron",
+    "belgium": "iron", "denmark": "iron", "portugal": "iron", "italy": "iron",
+    "turkey": "iron", "pakistan": "iron", "iran": "iron",
+}
+
 COUNTRIES = [
     {
         "id": cid,
@@ -151,6 +170,7 @@ COUNTRIES = [
         "lon": lon,
         "x": round(_map_x(lon) * 100, 2),
         "y": round(_map_y(lat) * 100, 2),
+        "resource": _COUNTRY_RESOURCE.get(cid, "stone"),
         "cities": cities,
     }
     for i, (cid, name, flag, lat, lon, cities) in enumerate(_RAW_COUNTRIES)
@@ -227,6 +247,12 @@ BUILDINGS = {
         "knowledge_bonus": 0.10, "satisfaction": 2, "points": 10,
         "info": "Teaches your people. +2 happiness, +0.1 knowledge points each second.",
     },
+    "bank": {
+        "name": "Bank", "emoji": "🏦",
+        "cost_money": 160, "materials": {"stone": 20, "gold": 10}, "cost_bp": 12,
+        "money_bonus": 2.0, "satisfaction": 3, "points": 16,
+        "info": "Stores and lends money. +3 happiness, +2 money each second.",
+    },
 }
 
 # ---------------------------------------------------------------
@@ -292,6 +318,7 @@ TAX_PER_CITIZEN = 0.03         # money per citizen per second (x happiness)
 BP_PER_SECOND = 0.5            # building points every second
 KP_PER_SECOND = 0.15           # knowledge points every second
 POP_GROWTH = 0.12              # new citizens per second (when happy + room)
+EXTRACT_PER_SECOND = 0.03      # raw material a city extracts each second (by region)
 WAR_DEFENDER_BONUS = 1.15      # defenders are a little stronger (small advantage)
 OUT_OF_WAR_MARGIN = 40         # from the 2nd century, this many extra war points
                                # lets you attack a city any time (outside the war)

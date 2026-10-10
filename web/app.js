@@ -306,7 +306,7 @@ function renderMyCities(p) {
     div.innerHTML = `
       <div class="city-head"><span class="city-name">${city.is_capital ? "⭐ " : ""}${city.name}</span>
         <span style="color:var(--muted);font-size:12px">🛡️ ${city.defense}</span></div>
-      <div class="city-stats">👥 ${city.population} people · 😊 ${city.satisfaction}% · built: ${built}</div>
+      <div class="city-stats">👥 ${city.population} people · 😊 ${city.satisfaction}% · ⛏️ ${matEmoji(city.resource)}${city.resource} · built: ${built}</div>
       <div class="build-row"></div>`;
     const row = div.querySelector(".build-row");
     Object.entries(world.buildings).forEach(([bid, b]) => {
@@ -375,7 +375,7 @@ function renderMap(p) {
         const oc = ci.owner ? world.players[ci.owner] : null;
         const cc = oc ? oc.color : "#6b7a94";
         const mine = ci.owner === myId ? " mine" : "";
-        return `<span class="ci${mine}" style="border-left-color:${cc}">${ci.name} <small>${oc ? oc.name : "Neutral"}</small></span>`;
+        return `<span class="ci${mine}" style="border-left-color:${cc}">${ci.name} <small>${oc ? oc.name : "Neutral"} · ${matEmoji(ci.resource)}${ci.resource}</small></span>`;
       })
       .join("");
 

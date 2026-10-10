@@ -71,6 +71,7 @@ class GameWorld:
                     satisfaction=config.BASE_SATISFACTION,
                     defense=config.CITY_BASE_DEFENSE if is_cap else config.NEUTRAL_CITY_DEFENSE,
                     is_capital=is_cap,
+                    resource=country.get("resource", "stone"),
                     x=country["x"],
                     y=country["y"],
                 )
@@ -617,6 +618,10 @@ class GameWorld:
             if self.sub_phase == "build":
                 for c in cities:
                     c.satisfaction = min(100, c.satisfaction + 0.02 * dt)
+
+            # cities extract the raw material of their region
+            for c in cities:
+                p.materials[c.resource] = p.materials.get(c.resource, 0) + config.EXTRACT_PER_SECOND * dt * m
 
             # a little security and war points trickle from your stuff
             p.security_points = sum(c.defense for c in cities)
