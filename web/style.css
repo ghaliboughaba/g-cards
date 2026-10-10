@@ -210,6 +210,11 @@ input {
 .pin.targetable:hover .pin-dot { box-shadow: 0 0 0 3px rgba(76, 201, 240, .7); }
 .pin.chosen-target { z-index: 6; }
 .pin.chosen-target .pin-dot { box-shadow: 0 0 0 3px var(--gold); }
+.pin.blitz .pin-dot { box-shadow: 0 0 0 3px rgba(255, 70, 70, .9); animation: blitzPulse 1s infinite; }
+@keyframes blitzPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 70, 70, .9); }
+  50% { box-shadow: 0 0 0 7px rgba(255, 70, 70, .2); }
+}
 .pin-name {
   position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
   margin-top: 3px; white-space: nowrap; font-size: 9.5px; font-weight: bold;

@@ -293,6 +293,8 @@ BP_PER_SECOND = 0.5            # building points every second
 KP_PER_SECOND = 0.15           # knowledge points every second
 POP_GROWTH = 0.12              # new citizens per second (when happy + room)
 WAR_DEFENDER_BONUS = 1.15      # defenders are a little stronger (small advantage)
+OUT_OF_WAR_MARGIN = 40         # from the 2nd century, this many extra war points
+                               # lets you attack a city any time (outside the war)
 
 # ---------------------------------------------------------------
 #  DIFFICULTY  (how strong the computer players are)

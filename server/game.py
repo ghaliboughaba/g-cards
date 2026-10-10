@@ -300,8 +300,38 @@ class GameWorld:
             return "Unknown city."
         if city.owner == player_id:
             return "That is your own city."
-        self.players[player_id].target = city_id
+        p = self.players[player_id]
+        # surprise attack outside the war, if your army is much stronger
+        if self.sub_phase == "build" and self.can_attack_now(p, city):
+            self._instant_attack(p, city)
+            return None
+        p.target = city_id
         return None
+
+    def defending_points(self, city) -> int:
+        """How well a city is defended (its walls + its owner's security)."""
+        points = city.defense
+        if city.owner:
+            points += self.players[city.owner].security_points
+        return points
+
+    def can_attack_now(self, player, city) -> bool:
+        """From the 2nd century, a much stronger army may attack any time."""
+        if self.century_index < 1:
+            return False
+        return player.war_points >= self.defending_points(city) + config.OUT_OF_WAR_MARGIN
+
+    def _instant_attack(self, p, city):
+        """Fight right now, outside the war phase."""
+        defender_id = city.owner
+        attack, defense = self._battle_powers(p, city)
+        captured = attack * random.uniform(0.85, 1.15) > defense * random.uniform(0.85, 1.15)
+        if captured:
+            self._capture(p, city)
+            self.system(f"⚡ {p.name} surprise-attacked {city.name} and captured it outside the war!")
+        else:
+            who = self.players[defender_id].name if defender_id else "the defenders"
+            self.system(f"⚡ {p.name} surprise-attacked {city.name} but {who} held it. 🛡️")
 
     def say(self, player_id: str, text: str):
         text = (text or "").strip()[:200]
@@ -721,6 +751,7 @@ class GameWorld:
             "can_pause": self.can_pause(),
             "can_reset": self.human_count() <= 1,
             "restart_time_left": round(self.restart_time_left, 1),
+            "out_of_war_margin": config.OUT_OF_WAR_MARGIN,
             "difficulty": self.difficulty,
             "difficulties": config.DIFFICULTIES,
             "war_preview": self.war_preview(),

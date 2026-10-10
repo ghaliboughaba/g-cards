@@ -324,9 +324,23 @@ function renderMyCities(p) {
 }
 
 function setTarget(cityId) {
+  const city = world.cities[cityId];
+  const blitz = city ? canAttackNow(city) : false;
   action({ action: "target", city: cityId }).then((d) => {
-    if (!d || !d.error) toast("🎯 Target set — attacked at the end of the century!", true);
+    if (d && d.error) return;
+    toast(blitz ? "⚡ Surprise attack!" : "🎯 Target set — attacked at the end of the century!", true);
   });
+}
+
+// can I attack this city right now (outside the war)?
+function canAttackNow(city) {
+  if ((world.century_index || 0) < 1) return false;
+  const p = me();
+  if (!p) return false;
+  let def = city.defense;
+  const owner = city.owner ? world.players[city.owner] : null;
+  if (owner) def += owner.security_points;
+  return p.war_points >= def + (world.out_of_war_margin || 40);
 }
 
 function renderMap(p) {
@@ -342,14 +356,16 @@ function renderMap(p) {
     const color = owner ? owner.color : "#6b7a94";
     const targetable = world.phase === "playing" && capital && capital.owner !== myId;
     const chosen = capital && p.target === capital.id;
+    const blitz = targetable && canAttackNow(capital);
 
     const pin = document.createElement("div");
     pin.className = "pin" + (owner ? " owned" : "") + (c.y > 55 ? " tip-up" : "")
-      + (targetable ? " targetable" : "") + (chosen ? " chosen-target" : "");
+      + (targetable ? " targetable" : "") + (chosen ? " chosen-target" : "")
+      + (blitz ? " blitz" : "");
     pin.style.left = c.x + "%";
     pin.style.top = c.y + "%";
     if (targetable) {
-      pin.title = `Attack ${capital.name}`;
+      pin.title = blitz ? `⚡ Attack ${capital.name} NOW` : `Target ${capital.name}`;
       pin.onclick = () => setTarget(capital.id);
     }
 
@@ -377,7 +393,7 @@ function renderWarPanel(p) {
     const t = p.target ? world.cities[p.target] : null;
     box.innerHTML = t
       ? `<p style="color:var(--good);font-size:13px">🎯 Your target: <b>${t.name}</b> — attacked at the end of the century.</p>`
-      : `<p style="color:var(--muted);font-size:13px">War comes at the end of the century. <b>Click a city on the map</b> to choose your target! ⚔️</p>`;
+      : `<p style="color:var(--muted);font-size:13px">War comes at the end of the century. <b>Click a city on the map</b> to choose your target!<br>⚡ A <b>red pulsing</b> city means your army is strong enough to attack it <b>right now</b>.</p>`;
     return;
   }
   if (!p.alive) { box.innerHTML = "<i>You are out of the game.</i>"; return; }
